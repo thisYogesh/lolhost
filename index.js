@@ -20,7 +20,7 @@ const fs = require('fs')
 const server = http.createServer(function(req, res){
     const url = req.url;
     const rootDirName = util.getDirName(__dirname) + url
-    const infoHeaders = ['Filename', 'Type', 'Created', 'Size<small>(bytes)</small>']
+    const infoHeaders = ['Filename', 'Type', 'Created', 'Size']
     let fileinfo = [util.createTableRowColumn(infoHeaders, 'th', null)];
     const currentPath = util.getCurrentPath(url)
     const pathWithDir = __dirname + currentPath
@@ -38,7 +38,9 @@ const server = http.createServer(function(req, res){
                         const pathName = isDirectory ? `${path}/` : path
                         const href = currentPath ? `${currentPath}/${path}` : `/${path}`
                         const pathAnchor = `<a href='${href}'>${pathName}</a>`
-                        const statInfo = util.createTableRowColumn([pathAnchor, type, stat.birthtime, stat.size], 'td', null)
+                        const dateTime = util.getDateTime(stat.birthtime)
+                        const size = util.getSize(stat.size)
+                        const statInfo = util.createTableRowColumn([pathAnchor, type, dateTime, size], 'td', null)
                         fileinfo.push(statInfo)
                     })
                     fileinfo = util.createTableRowColumn(fileinfo, 'tr', 'table')
@@ -56,19 +58,11 @@ const server = http.createServer(function(req, res){
             fs.readFile(pathWithDir, null, function(err, content){
                 if(!err){
                     const extention = currentPath.match(/\.\w+$/)
-                    let contentType = extention ? util.types[extention] : util.types['default']
-                    const isImageType = util.isImageType(contentType)
-                    let fileContent = isImageType ? new Buffer(content).toString('base64') : content
-                    
-                    if(isImageType){
-                        const base64Prefix = `data:${contentType};base64,`
-                        contentType = 'text/html'
-                        fileContent = `<img src='${base64Prefix}${fileContent}'/>`
-                        // fileContent = `data:${contentType};base64,${fileContent}`
-                    };
+                    const isSupportedExtention = util.isSupportedExtention(extention)
+                    let contentType = isSupportedExtention ? util.types[extention] : util.types['default']
 
                     res.setHeader('content-type', contentType);
-                    res.end(fileContent);
+                    res.end(content);
                 }else{
                     res.end(`Unable to read ${currentPath}`);
                 }
