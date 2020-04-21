@@ -53,13 +53,22 @@ const server = http.createServer(function(req, res){
                 
             })
         }else{ // open file
-            fs.readFile(pathWithDir, 'utf8', function(err, content){
+            fs.readFile(pathWithDir, null, function(err, content){
                 if(!err){
-                    const extention = currentPath.match(/\w+$/)
-                    const contentType = extention ? util.types[extention] : util.types['default']
+                    const extention = currentPath.match(/\.\w+$/)
+                    let contentType = extention ? util.types[extention] : util.types['default']
+                    const isImageType = util.isImageType(contentType)
+                    let fileContent = isImageType ? new Buffer(content).toString('base64') : content
+                    
+                    if(isImageType){
+                        const base64Prefix = `data:${contentType};base64,`
+                        contentType = 'text/html'
+                        fileContent = `<img src='${base64Prefix}${fileContent}'/>`
+                        // fileContent = `data:${contentType};base64,${fileContent}`
+                    };
+
                     res.setHeader('content-type', contentType);
-                    // console.log(Buffer(content).toString('base64'))
-                    res.end(content);
+                    res.end(fileContent);
                 }else{
                     res.end(`Unable to read ${currentPath}`);
                 }
@@ -73,3 +82,4 @@ const server = http.createServer(function(req, res){
 })
 
 server.listen(8000)
+console.log('server created at http://localhost:8000')
