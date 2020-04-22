@@ -1,3 +1,5 @@
+const package = require('./package.json');
+
 const B = 8;
 const KB = 1e+3
 const MB = 1e+6
@@ -11,6 +13,7 @@ const wrap = (wrapperEl, innerEls) => {
 
 const types = {
     'default': 'text/plain',
+    '.html'  : 'text/html',
     '.txt'   : 'text/plain',
     '.js'    : 'text/javascript',
     '.css'   : 'text/css',
@@ -31,8 +34,9 @@ module.exports = {
     types,
     supportedTypes,
     supportedExt,
+    package,
 
-    getDirName (dirname){
+    getRootDirName (dirname){
         var dirSplit = dirname.split('/');
         return dirSplit[dirSplit.length  - 1]
     },
@@ -57,7 +61,7 @@ module.exports = {
     },
 
     isSupportedExtention(ext){
-        return !!supportedExt[ext]
+        return supportedExt.includes(ext)
     },
 
     getDateTime(date){
