@@ -20,6 +20,7 @@ function server(port = 8000){
     http.createServer(function(req, res){
         const url = req.url;
         const dirname = __dirname.replace(`/node_modules/${util.package.name}`, '')
+        console.log('dirname', dirname)
         const rootDirName = util.getRootDirName(dirname) + url
         const infoHeaders = ['Filename', 'Mode', 'Type', 'Created', 'Size']
         let fileinfo = [util.createTableRowColumn(infoHeaders, 'th', null)];

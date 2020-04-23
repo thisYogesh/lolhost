@@ -6,8 +6,10 @@
   "dependencies": {
     "dotenv": "^8.2.0"
   },
-
   "scripts": {
     "dev": "node index.js"
+  },
+  "bin": {
+    "yogi": "./cli.js"
   }
 }
