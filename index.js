@@ -18,15 +18,16 @@ const fs = require('fs')
 
 function server(port = 8000){
     http.createServer(function(req, res){
-        const url = req.url;
-        const rx = new RegExp(`[\\\\|/]node_modules[\\\\|/]${util.package.name}`)
-        const dirname = __dirname.replace(rx, '')
+        const url = util.decodeURL(req.url)
+        const dirname = __dirname.replace(/\\/g, '/').replace(`/node_modules/${util.package.name}`);
         const rootDirName = util.getRootDirName(dirname) + url
-        const infoHeaders = ['Filename', 'Type', 'Created', 'Size']
-        let fileinfo = [util.createTableRowColumn(infoHeaders, 'th', null)];
         const currentPath = decodeURIComponent(util.getCurrentPath(url))
         const pathWithDir = dirname + currentPath
+        const infoHeaders = ['Filename', 'Type', 'Created', 'Size']
+        let fileinfo = [util.createTableRowColumn(infoHeaders, 'th', null)];
+
         res.setHeader('content-type', 'text/html');
+
         try{
             const statInfo = fs.statSync(pathWithDir)
             if(statInfo.isDirectory()){

@@ -91,5 +91,9 @@ module.exports = {
 
         size =  Math.round(size)
         return `${size} ${unit}`;
+    },
+
+    decodeURL(url){
+        return decodeURIComponent(url)
     }
 }
