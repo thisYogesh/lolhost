@@ -5,7 +5,7 @@ const fs = require('fs')
 function server(port = 8000){
     http.createServer(function(req, res){
         const url = util.normUrl(util.decode(req.url))
-        const dirname = __dirname.replace(/\\/g, '/').replace(`/node_modules/${util.package.name}`);
+        const dirname = __dirname.replace(/\\/g, '/').replace(`/node_modules/${util.package.name}`, '');
         const rootDirName = util.getRootDirName(dirname) +  url
         const currentPath = decodeURIComponent(util.getCurrentPath(url))    
         const pathWithDir = dirname + currentPath
