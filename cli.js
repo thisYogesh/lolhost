@@ -1,4 +1,6 @@
 #!/usr/bin/env node
 
-const [,, ...args] = process.argv
-console.log('arguments are ' + args)
+// const [,, ...args] = process.argv
+// console.log('arguments are ' + args)
+
+require('./index')()
