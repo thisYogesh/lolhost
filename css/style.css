@@ -1,0 +1,70 @@
+@import "./font.css";
+
+body{
+    font-family: Montserrat, sans-serif;
+    font-weight: 400;
+    margin: 0;
+}
+
+table { 
+    border-collapse: collapse; 
+    border: 1px solid;
+    min-width: 500px;
+    font-size: 14px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+th {
+    font-weight: 600;
+}
+
+th, td {
+    border: 1px solid;
+    padding: 4px 6px;
+}
+
+.error {
+    font-weight: lighter;
+}
+
+nav {
+    font-size: 18px;
+    margin: 20px 10px;
+}
+
+nav > a:after {
+    content: '/';
+    margin: 0 2px;  
+}
+
+table.theme1 {
+    border-width: 0;
+}
+
+table.theme1 th, table.theme1 td {
+    border-width: 0;
+}
+
+table.theme1 tr:first-child{ 
+    background-color: #6c7ae0;
+}
+
+table.theme1 th {
+    font-weight: 400;
+    text-align: left;
+    padding: 12px 6px;
+    color: #fff;
+}
+
+table.theme1 td {
+    background-color: #fafafa;
+    padding: 8px 6px;
+}
+
+.path-name {
+    max-width: 150px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
