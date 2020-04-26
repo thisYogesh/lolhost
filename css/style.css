@@ -1,4 +1,4 @@
-@import "./font.css";
+@import "/@app/css/font.css";
 
 body{
     font-family: Montserrat, sans-serif;
@@ -40,6 +40,7 @@ nav > a:after {
 
 table.theme1 {
     border-width: 0;
+    border-bottom: 2px solid #6c7ae0;
 }
 
 table.theme1 th, table.theme1 td {
@@ -68,3 +69,50 @@ table.theme1 td {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* 404 Style */
+.page-404 {
+    background-color: #fafafa;
+    height: 100vh;
+    text-align: center;
+    color: #555;
+}
+
+.page-404 h2 {
+    font-weight: 200;
+    font-size: 50px;
+    margin-bottom: 20px;
+    margin-top: 0;
+    color: #b22;
+}
+
+.page-404 p {
+    font-size: 18px;
+    margin: 0;
+    color: #b22;
+}
+
+.page-404 article {
+    position: relative;
+    top: 45%;
+    transform: translateY(-50%);
+}
+
+.page-404 button {
+    background-color: #6c7ae0;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    padding: 10px;
+    min-width: 120px;
+    margin: 30px 10px 0;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.page-404 .excla {
+    font-size: 80px;
+    color: #b22;
+    font-weight: 600;
+}
+/* 404 Style End */

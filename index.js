@@ -1,11 +1,18 @@
 const http = require('http');
 const util = require('./js/util');
 const fs = require('fs')
+const appRx = /^\/@app/
 
 function server(port = 8000){
     http.createServer(function(req, res){
-        const url = util.normUrl(util.decode(req.url))
-        const dirname = __dirname.replace(/\\/g, '/').replace(`/node_modules/${util.package.name}`, '');
+        let url = util.normUrl(util.decode(req.url))
+        let dirname = __dirname.replace(/\\/g, '/')
+        if(appRx.test(url)){
+            url = url.replace(appRx, '');
+        }else{
+            dirname = dirname.replace(`/node_modules/${util.package.name}`, '');
+        }
+        
         const rootDirName = util.getRootDirName(dirname) +  url
         const currentPath = decodeURIComponent(util.getCurrentPath(url))    
         const pathWithDir = dirname + currentPath
@@ -60,8 +67,8 @@ function server(port = 8000){
                 })
             }
         }catch(e){
-            res.writeHead(404, 'File not found!');
-            util.response(res, `<h2 class='error --404'><b>404</b> ${currentPath} Path does not exist!</h2>`)
+            res.writeHead(404, 'Path does not exist!');
+            util.response(res, util.pag404())
         }
     }).listen(port)
     console.log(`server created at http://localhost:${port}`)

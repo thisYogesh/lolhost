@@ -6,17 +6,20 @@ const GB = 1e+9
 const TB = 1e+12
 const types = {
     'default': 'text/plain',
+    
     '.html'  : 'text/html',
     '.txt'   : 'text/plain',
     '.js'    : 'text/javascript',
     '.css'   : 'text/css',
-    '.json'  :  'application/json',
-    
+    '.json'  : 'application/json',
+    '.pdf'   : 'application/pdf',
+
     // Image types 
     '.jpg'   : 'image/jpg',
     '.jpeg'  : 'image/jpeg',
     '.png'   : 'image/png',
     '.ico'   : 'image/ico',
+    '.gif'   : 'image/gif',
 
     // Font types
     '.ttf'   : 'application/octet-stream'
@@ -141,7 +144,7 @@ module.exports = {
     },
 
     response(res, data = '', isFile = false){
-        !isFile && res.write(`<head> <link rel="stylesheet" href="/css/style.css"/> </head>`);
+        !isFile && res.write(`<head> <link rel="stylesheet" href="/@app/css/style.css"/> </head>`);
         res.end(data)
     },
 
@@ -165,5 +168,19 @@ module.exports = {
 
     normUrl(url){
         return url ===  '/' ? url : url.replace(/\/$/, '')
+    },
+
+    pag404(){
+        return `
+        <section class="page-404">
+            <article>
+                <span class="excla">!</span>
+                <h2>404</h2>
+                <p>This path does not exist!</p>
+                <button onclick='location.reload()'>Reload</button>
+                <button onclick='history.back()'>Back</button>
+            </article>
+        </section>
+        `
     }
 }
