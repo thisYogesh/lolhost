@@ -1,5 +1,5 @@
 {
-  "name": "yogi-localhost",
+  "name": "lolhost",
   "version": "1.1.0",
   "main": "index.js",
   "license": "MIT",
@@ -8,5 +8,8 @@
   },
   "scripts": {
     "dev": "node index.js"
+  },
+  "bin": {
+    "lol": "./cli.js"
   }
 }

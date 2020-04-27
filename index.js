@@ -71,6 +71,7 @@ function server(port = 8000){
             util.response(res, util.pag404())
         }
     }).listen(port)
+    
     console.log(`server created at http://localhost:${port}`)
 }
 
