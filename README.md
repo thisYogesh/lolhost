@@ -17,11 +17,5 @@ require('lolhost')(8000);
 >_ node index.js
 ```
 
-### Run with shell command
-#### This only possible if you get linked this package successfully! 
-```
->_ lol --port 8000
-```
-
 
 ## You are done! 👍
