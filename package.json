@@ -1,6 +1,7 @@
 {
   "name": "lolhost",
-  "version": "1.0.0",
+  "description": "Node based static web server... lol",
+  "version": "1.0.1",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
