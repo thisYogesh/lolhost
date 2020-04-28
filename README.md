@@ -2,7 +2,7 @@
 
 ### Install using npm
 ```
->_ npm install -g lolhost
+>_ npm install lolhost
 ```
 
 ### Steps to start localhost with lolhost 😉
