@@ -6,13 +6,13 @@
 ```
 
 ### Steps to start localhost with lolhost 😉
-#### Create index.js file
+#### 1. Create index.js file
 ```js
 // require('lolhost')(<port number>)
 require('lolhost')(8000);
 ```
 
-### Run index.js file
+#### 2. Run index.js file
 ```
 >_ node index.js
 ```
