@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "node index.js"
   },
+  "keywords": ["localhost", "server", "node", "static server", "lolhost"],
   "bin": {
     "lol": "./cli.js"
   }
