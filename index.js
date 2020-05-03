@@ -1,17 +1,16 @@
 const http = require('http');
 const util = require('./js/util');
-const fs = require('fs')
-const appRx = /^\/@app/
+const fs = require('fs');
+const appRx = /^\/@app/;
+const config = util.getConfig(__dirname, fs);
 
 function server(port = 8000){
     http.createServer(function(req, res){
         let url = util.normUrl(util.decode(req.url))
-        let dirname = __dirname.replace(/\\/g, '/')
-        if(appRx.test(url)){
-            url = url.replace(appRx, '');
-        }else{
-            dirname = dirname.replace(`/node_modules/${util.package.name}`, '');
-        }
+        let dirname = __dirname.replace(/\\/g, '/');
+        
+        if(appRx.test(url)) url = url.replace(appRx, '');
+        else dirname = util.normPath(dirname)
         
         const rootDirName = util.getRootDirName(dirname) +  url
         const currentPath = decodeURIComponent(util.getCurrentPath(url))    
@@ -24,6 +23,22 @@ function server(port = 8000){
         try{
             const statInfo = fs.statSync(pathWithDir)
             if(statInfo.isDirectory()){
+                if(!config.dirListing){
+                    fs.readFile(pathWithDir + '/' + config.dirIndex, null, function(err, content){
+                        if(err){
+                            util.throwError(res, {
+                                code: 403.13,
+                                message: 'Forbidden directory!'
+                            })
+                        }else{
+                            res.setHeader('content-type', 'text/html');
+                            util.response(res, content, true)
+                        }
+                    })
+                    
+                    return;
+                }
+
                 fs.readdir(pathWithDir, 'utf8', function(err, files){
                     if(!err){
                         files.forEach(path => {
@@ -32,7 +47,8 @@ function server(port = 8000){
                             const type = isDirectory ? 'Folder' : 'File'
                             const pathName = isDirectory ? `${path}/` : path
                             const href = currentPath ? `${currentPath}/${path}` : `/${path}`
-                            const pathAnchor = `<a class='path-name' title='${pathName}' href='${href}'>${pathName}</a>`
+                            const isHidden = /^\./.test(pathName) ? '--hidden' : ''
+                            const pathAnchor = `<a class='path-name ${isHidden}' title='${pathName}' href='${href}'>${pathName}</a>`
                             const dateTime = util.getDateTime(stat.birthtime)
                             const size = util.getSize(stat.size)
                             const statInfo = util.createWrapper([pathAnchor, type, dateTime, size], 'td', null)
@@ -67,12 +83,14 @@ function server(port = 8000){
                 })
             }
         }catch(e){
-            res.writeHead(404, 'Path does not exist!');
-            util.response(res, util.pag404())
+            util.throwError(res, {
+                code: 404,
+                message: 'Path does not exist!'
+            });
         }
     }).listen(port)
     
-    console.log(`server created at http://localhost:${port}`)
+    console.log(`✔︎ Server created at ❤ http://localhost:${port}`)
 }
 
 module.exports = server

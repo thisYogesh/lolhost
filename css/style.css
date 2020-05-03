@@ -61,24 +61,47 @@ table.theme1 th {
 table.theme1 td {
     background-color: #fafafa;
     padding: 8px 6px;
-}
-
-.path-name {
     max-width: 150px;
-    display: block;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+.path-name {
+    outline: none;
+    text-decoration: none;
+    border-bottom: 1px dotted #000;
+    color: #000;
+}
+
+.path-name.--hidden {
+    opacity: .4;
+}
+
+.path-name:focus {
+    border: 1px dashed #000;
+}
+
+.path-name:active {
+    border: 1px dotted #000;
+}
+
+b {
+    font-weight: 600;
+}
+/* .path-name:visited {
+    color: #3b3b3b;
+} */
+
 /* 404 Style */
-.page-404 {
+.error-page {
     background-color: #fafafa;
     height: 100vh;
     text-align: center;
     color: #555;
 }
 
-.page-404 h2 {
+.error-page h2 {
     font-weight: 200;
     font-size: 50px;
     margin-bottom: 20px;
@@ -86,19 +109,19 @@ table.theme1 td {
     color: #b22;
 }
 
-.page-404 p {
+.error-page p {
     font-size: 18px;
     margin: 0;
     color: #b22;
 }
 
-.page-404 article {
+.error-page article {
     position: relative;
     top: 45%;
     transform: translateY(-50%);
 }
 
-.page-404 button {
+.error-page button {
     background-color: #6c7ae0;
     border: none;
     color: #fff;
@@ -110,7 +133,7 @@ table.theme1 td {
     border-radius: 2px;
 }
 
-.page-404 .excla {
+.error-page .excla {
     font-size: 80px;
     color: #b22;
     font-weight: 600;

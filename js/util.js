@@ -1,34 +1,15 @@
 const package = require('../package.json');
-const B = 8;
+const types = require('./mime')
+const config = require('./config')
 const KB = 1e+3
 const MB = 1e+6
 const GB = 1e+9
 const TB = 1e+12
-const types = {
-    'default': 'text/plain',
-    
-    '.html'  : 'text/html',
-    '.txt'   : 'text/plain',
-    '.js'    : 'text/javascript',
-    '.css'   : 'text/css',
-    '.json'  : 'application/json',
-    '.pdf'   : 'application/pdf',
-
-    // Image types 
-    '.jpg'   : 'image/jpg',
-    '.jpeg'  : 'image/jpeg',
-    '.png'   : 'image/png',
-    '.ico'   : 'image/ico',
-    '.gif'   : 'image/gif',
-
-    // Font types
-    '.ttf'   : 'application/octet-stream'
-}
-const imageTypes = {}
 const supportedExt = Object.keys(types)
 const supportedTypes = Object.values(types)
+const imageTypes = {}
 supportedTypes.forEach(type => {
-    type.includes('image/') && (imageTypes[type] = true) 
+    type.includes('image/') && (imageTypes[type] = true)
 })
 
 const getElAttrs = (tag) => {
@@ -80,6 +61,47 @@ const addAttrs = (str, attrs) => {
     return str
 }
 
+const response = (res, data = '', isFile = false) => {
+    !isFile && res.write(`<head> <link rel="stylesheet" href="/@app/css/style.css"/> </head>`);
+    res.end(data)
+}
+
+const errorPage = (code)=> {
+    let content = ''
+    switch(code){
+        case 404:
+            content = `
+            <section class="error-page">
+                <article>
+                    <span class="excla">!</span>
+                    <h2>404</h2>
+                    <p>This path does not exist!</p>
+                    <button onclick='location.reload()'>Reload</button>
+                    <button onclick='history.back()'>Back</button>
+                </article>
+            </section>
+            `;
+            break;
+        case 403.13:
+            content = `
+            <section class="error-page">
+                <article>
+                    <span class="excla">!</span>
+                    <h2>403.13</h2>
+                    <p>Forbidden! The Web server is configured to not list the contents of this directory.</p>
+                    <p>For more detail see <b>lolhost.config</b></p>
+                </article>
+            </section>
+            `;
+            break;
+    }
+
+    return content
+}
+
+const normPath = (path) => {
+    return path.replace(`/node_modules/${package.name}`, '');
+}
 
 module.exports = {
     types,
@@ -87,6 +109,8 @@ module.exports = {
     supportedExt,
     package,
     createWrapper,
+    response,
+    normPath,
 
     getRootDirName (dirname){
         var dirSplit = dirname.split('/');
@@ -143,11 +167,6 @@ module.exports = {
         return decodeURIComponent(url)
     },
 
-    response(res, data = '', isFile = false){
-        !isFile && res.write(`<head> <link rel="stylesheet" href="/@app/css/style.css"/> </head>`);
-        res.end(data)
-    },
-
     createNav(localpath){
         let _path = ''
         const paths = localpath.split('/').reduce((acc, path) => {
@@ -170,17 +189,35 @@ module.exports = {
         return url ===  '/' ? url : url.replace(/\/$/, '')
     },
 
-    pag404(){
-        return `
-        <section class="page-404">
-            <article>
-                <span class="excla">!</span>
-                <h2>404</h2>
-                <p>This path does not exist!</p>
-                <button onclick='location.reload()'>Reload</button>
-                <button onclick='history.back()'>Back</button>
-            </article>
-        </section>
-        `
+    throwError(res, status = {}){
+        const code = status.code
+        res.writeHead(code, status.message || '')
+        response(res, errorPage(code))
+    },
+
+    getConfig(dirname, fs){
+        const message = {
+            syntaxError: '✘ Syntax error in lolhost.config. Please follow JSON Syntax Rules',
+            initDefault: 'ℹ Server initialize with (default) config',
+            initUpdated: 'ℹ Server initialize with (updated) config'
+        }
+        let _config;
+        dirname = normPath(dirname.replace(/\\/g, '/'));
+        try{
+            let data = fs.readFileSync(dirname + '/' + 'lolhost.config', 'utf-8')
+            try{
+                if(data.trim()) _config = JSON.parse(data), console.log(message.initUpdated)
+                else _config = {}, console.log(message.initDefault)
+            }catch{
+                _config = {}
+                console.log(message.syntaxError)
+                console.log(message.initDefault)
+            }
+        }catch{
+            _config = {}
+            console.log(message.initDefault)
+        }
+
+        return Object.assign(config, _config);
     }
 }
