@@ -16,6 +16,16 @@ module.exports = {
     '.gif'   : 'image/gif',
     '.svg'   : 'image/svg+xml',
 
+    /**
+     * Media types
+     */
+
+    // Video types
+    '.mp4'   : 'video/mp4',
+
+    // Audio types
+    '.mp3'   : 'audio/mpeg',
+
     // Font types
     '.ttf'   : 'application/octet-stream'
 }
