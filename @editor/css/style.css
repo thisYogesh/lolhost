@@ -1,0 +1,112 @@
+@import './font.css';
+@import './reset.css';
+
+body{
+    font-family: Inconsolata;
+    font-weight: 400;
+    color: #bbb;
+    cursor: default;
+}
+
+.app-header {
+    height: 20px;
+    background-color: #3c3c3c;
+    color: #ccc;
+    text-align: center;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.app-footer {
+    background-color: #007acc;
+    color: #fff;
+    height: 22px;
+    font-size: 12px;
+}
+
+.app-middle {
+    height: calc(100vh -  42px);
+    display: flex;
+}
+
+.app-piller {
+    height: 100%;
+}
+
+.app-file-explorer {
+    width: 20%;
+    background-color: #252526;
+}
+
+.app-file-viewer {
+    width: 80%;
+    background-color: #1e1e1e;
+}
+
+.app-file-ex-title {
+    text-transform: uppercase;
+    font-size: 15px;
+}
+
+.app-piller-top{
+    height: 35px;
+    line-height: 35px;  
+}
+
+.file-ex-side-pad {
+    padding: 0 20px;
+}
+
+.app-list-name{
+    height: 22px;
+    line-height: 22px;
+    display: block;
+    color: #bbb;
+    cursor: pointer;
+}
+
+
+.app-list-wrapper > li > .app-list-wrapper {
+    margin-left: 15px;
+}
+
+.app-list-wrapper.--root-wrapper {
+    position:relative
+}
+
+.app-list-name:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    height: 22px;
+    background-color: #383838;
+    width: 100%;
+    opacity: 0;
+    transition: opacity .5s ease;
+}
+
+.app-list-name:not(.--root):hover:before{
+    opacity: 1;
+}
+
+.app-list-name-content{
+    position: relative;
+}
+
+.app-list-name.--root {
+    background-color: #383838;
+    text-transform: uppercase;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+.emb-spiral {
+    font-size: 15px;
+    display: inline-block;
+}
+
+.emb-heart {
+    font-size: 14px;
+}
+
