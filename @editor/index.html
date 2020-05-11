@@ -6,9 +6,7 @@
     </head>
     <body>
         <main class="main-wrapper">
-            <header class="app-header">index.html <a class="emb-spiral">~</a><a class="emb-heart">&#10084;</a><a class="emb-spiral" style="
-                transform: rotateY(180deg);
-            ">~</a> Lolhost</header>
+            <header class="app-header">index.html <a class="emb-spiral">~</a><a class="emb-heart">&#10084;</a><a class="emb-spiral --twist">~</a> Lolhost</header>
             <section class="app-middle">
                 <aside class="app-file-explorer app-piller">
                     <div class="app-file-ex-title app-piller-top file-ex-side-pad">
@@ -16,47 +14,79 @@
                     </div>
                     <ul class="app-list-wrapper --root-wrapper">
                         <li class="app-list-item">
-                            <a class="app-list-name file-ex-side-pad --root">Lolhost</a>
+                            <!-- <a class="app-list-name file-ex-side-pad">Lolhost</a> -->
+                            <a class="app-list-name file-ex-side-pad --root --is-folder">
+                                Lolhost
+                            </a>
                             <ul class="app-list-wrapper">
                                 <li class="app-list-item">
-                                    <a class="app-list-name file-ex-side-pad --is-folder">
-                                        <div class="app-list-name-content">css</div>
+                                    <a tabindex="0" class="app-list-name file-ex-side-pad --is-folder">
+                                        <div class="app-list-name-content">
+                                            <span class="app-icon-wrapper">
+                                                <svg class="app-svg --folder-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                                                    <path fill="currentColor" d="M28.8 6.9H16.1V5.7c0-1.4-1.1-2.5-2.5-2.5H.6v25.6h30.6V9.4c.1-1.4-1-2.5-2.4-2.5z"></path>
+                                                </svg>
+                                            </span>
+                                            css
+                                        </div>
                                     </a>
                                     <ul class="app-list-wrapper">
                                         <li class="app-list-item">
-                                            <a class="app-list-name file-ex-side-pad --is-folder">
-                                                <div class="app-list-name-content">css</div>
+                                            <a tabindex="0" class="app-list-name file-ex-side-pad --is-file">
+                                                <div class="app-list-name-content">
+                                                    <span class="app-icon-wrapper">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-css"><path fill="currentColor" d="M10.3 23.3l.8-4H8.6v-2.1h3l.5-2.5H9.5v-2.1h3.1l.8-3.9h2.8l-.8 3.9h2.8l.8-3.9h2.8l-.8 3.9h2.5v2.1h-2.9l-.6 2.5h2.6v2.1h-3l-.8 4H16l.8-4H14l-.8 4h-2.9zm6.9-6.1l.5-2.5h-2.8l-.5 2.5h2.8z"></path></svg>
+                                                    </span>
+                                                    style.css
+                                                </div>
                                             </a>
                                         </li>
                                         <li class="app-list-item">
-                                            <a class="app-list-name file-ex-side-pad --is-file">
-                                                <div class="app-list-name-content">app.js</div>
-                                            </a>
-                                        </li>
-                                        <li class="app-list-item">
-                                            <a class="app-list-name file-ex-side-pad --is-file">
-                                                <div class="app-list-name-content">index.html</div>
+                                            <a tabindex="0" class="app-list-name file-ex-side-pad --is-file">
+                                                <div class="app-list-name-content">
+                                                    <span class="app-icon-wrapper">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-css"><path fill="currentColor" d="M10.3 23.3l.8-4H8.6v-2.1h3l.5-2.5H9.5v-2.1h3.1l.8-3.9h2.8l-.8 3.9h2.8l.8-3.9h2.8l-.8 3.9h2.5v2.1h-2.9l-.6 2.5h2.6v2.1h-3l-.8 4H16l.8-4H14l-.8 4h-2.9zm6.9-6.1l.5-2.5h-2.8l-.5 2.5h2.8z"></path></svg>
+                                                    </span>
+                                                    reset.css
+                                                </div>
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li class="app-list-item">
-                                    <a class="app-list-name file-ex-side-pad --is-file">
-                                        <div class="app-list-name-content">app.js</div>
+                                    <a tabindex="0" class="app-list-name file-ex-side-pad --is-file">
+                                        <div class="app-list-name-content">
+                                            <span class="app-icon-wrapper">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-js"><path fill="currentColor" d="M11.4 10h2.7v7.6c0 3.4-1.6 4.6-4.3 4.6-.6 0-1.5-.1-2-.3l.3-2.2c.4.2.9.3 1.4.3 1.1 0 1.9-.5 1.9-2.4V10zm5.1 9.2c.7.4 1.9.8 3 .8 1.3 0 1.9-.5 1.9-1.3s-.6-1.2-2-1.7c-2-.7-3.3-1.8-3.3-3.6 0-2.1 1.7-3.6 4.6-3.6 1.4 0 2.4.3 3.1.6l-.6 2.2c-.5-.2-1.3-.6-2.5-.6s-1.8.5-1.8 1.2c0 .8.7 1.1 2.2 1.7 2.1.8 3.1 1.9 3.1 3.6 0 2-1.6 3.7-4.9 3.7-1.4 0-2.7-.4-3.4-.7l.6-2.3z"/></svg>
+                                            </span>
+                                            app.js
+                                        </div>
                                     </a>
                                 </li>
                                 <li class="app-list-item">
-                                    <a class="app-list-name file-ex-side-pad --is-file">
-                                        <div class="app-list-name-content">index.html</div>
+                                    <a tabindex="0" class="app-list-name file-ex-side-pad --is-file">
+                                        <div class="app-list-name-content">
+                                            <span class="app-icon-wrapper">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-html"><path fill="currentColor" d="M8 15l6-5.6V12l-4.5 4 4.5 4v2.6L8 17v-2zm16 2.1l-6 5.6V20l4.6-4-4.6-4V9.3l6 5.6v2.2z"/></svg>
+                                            </span>
+                                            index.html
+                                        </div>
                                     </a>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                 </aside>
-                <section class="app-file-viewer app-piller"></section>
+                <section class="app-file-viewer app-piller">
+                    <div class="app-tab-wrapper app-piller-top">
+                        <div class="app-tab-item">index.html</div>
+                        <div class="app-tab-item">app.js</div>
+                    </div>
+                </section>
             </section>
-            <footer class="app-footer"></footer>
+            <footer class="app-footer">
+
+            </footer>
         </main>
     </body>
 </html>

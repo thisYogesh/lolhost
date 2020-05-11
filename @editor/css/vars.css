@@ -1,0 +1,16 @@
+:root{
+    --color-1: #252526;
+    --color-2: #1e1e1e;
+    --color-3: #2d2d2d;
+    --color-4: #007acc;
+    --color-5: #3c3c3c;
+    --color-6: #bbb;
+    --color-7: #383838;
+
+    --app-top-bar-height: 20px;
+    --list-item-height: 25px;
+    --app-bottom-bar-height: 20px;
+    --app-file-tab-height: 40px;
+    --list-descendant-ml: 20px;
+    --list-name-plr: 20px;
+}

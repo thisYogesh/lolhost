@@ -1,31 +1,32 @@
+@import './vars.css';
+@import './icon-svg.css';
 @import './font.css';
 @import './reset.css';
 
 body{
     font-family: Inconsolata;
     font-weight: 400;
-    color: #bbb;
+    color: var(--color-6);
     cursor: default;
 }
 
 .app-header {
-    height: 20px;
-    background-color: #3c3c3c;
-    color: #ccc;
+    height: var(--app-top-bar-height);
+    background-color: var(--color-5);
     text-align: center;
     font-size: 13px;
-    line-height: 20px;
+    line-height: var(--app-top-bar-height);
 }
 
 .app-footer {
-    background-color: #007acc;
+    background-color: var(--color-4);
     color: #fff;
-    height: 22px;
+    height: var(--app-bottom-bar-height);
     font-size: 12px;
 }
 
 .app-middle {
-    height: calc(100vh -  42px);
+    height: calc(100vh -  (var(--app-top-bar-height) + var(--app-bottom-bar-height)));
     display: flex;
 }
 
@@ -35,12 +36,12 @@ body{
 
 .app-file-explorer {
     width: 20%;
-    background-color: #252526;
+    background-color: var(--color-1);
 }
 
 .app-file-viewer {
     width: 80%;
-    background-color: #1e1e1e;
+    background-color: var(--color-2);
 }
 
 .app-file-ex-title {
@@ -49,25 +50,24 @@ body{
 }
 
 .app-piller-top{
-    height: 35px;
-    line-height: 35px;  
+    height: var(--app-file-tab-height);
+    line-height: var(--app-file-tab-height);  
 }
 
 .file-ex-side-pad {
-    padding: 0 20px;
+    padding: 0 var(--list-name-plr);
 }
 
 .app-list-name{
-    height: 22px;
-    line-height: 22px;
+    height: var(--list-item-height);
+    line-height: var(--list-item-height);
     display: block;
-    color: #bbb;
     cursor: pointer;
 }
 
 
 .app-list-wrapper > li > .app-list-wrapper {
-    margin-left: 15px;
+    margin-left: var(--list-descendant-ml);
 }
 
 .app-list-wrapper.--root-wrapper {
@@ -78,11 +78,16 @@ body{
     content: '';
     position: absolute;
     left: 0;
-    height: 22px;
-    background-color: #383838;
+    height: inherit;
+    background-color: var(--color-7);
     width: 100%;
     opacity: 0;
     transition: opacity .5s ease;
+}
+
+.app-list-name:focus:before {
+    background-color: var(--color-4);
+    opacity: 1;
 }
 
 .app-list-name:not(.--root):hover:before{
@@ -91,10 +96,11 @@ body{
 
 .app-list-name-content{
     position: relative;
+    padding-left: 3px;
 }
 
 .app-list-name.--root {
-    background-color: #383838;
+    background-color: var(--color-7);
     text-transform: uppercase;
     font-size: 15px;
     letter-spacing: 0.5px;
@@ -106,7 +112,28 @@ body{
     display: inline-block;
 }
 
+.emb-spiral.--twist {
+    transform: rotateY(180deg);
+}
+
 .emb-heart {
     font-size: 14px;
 }
 
+/* Tab */
+.app-tab-wrapper {
+    background-color: var(--color-1);
+}
+
+.app-tab-wrapper {
+    display: flex;
+}
+
+.app-tab-item {
+    border-right: 1px solid var(--color-1);
+    background-color: var(--color-3);
+    padding: 0 20px;
+    min-width: 120px;
+    box-sizing: border-box;
+    text-align: center;
+}

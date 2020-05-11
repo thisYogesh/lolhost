@@ -1,0 +1,40 @@
+.app-icon-wrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: var(--list-item-height);
+    width: 20px;
+    display: inline-block;
+    line-height: var(--list-item-height);
+    text-align: center;
+    margin-left: -19px;
+}
+
+.app-svg {
+    display: inline-block;
+    vertical-align: text-bottom;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    position: absolute;
+}
+
+.--folder-svg {
+    width: 15px;
+}
+
+.--common {
+    width: 20px;
+}
+
+.--svg-js {
+    color: #F1DD3F
+}
+
+.--svg-css {
+    color: #529BBA
+}
+
+.--svg-html{
+    color: #EF7623
+}
