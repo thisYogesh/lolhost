@@ -9,8 +9,9 @@
 
     --app-top-bar-height: 20px;
     --list-item-height: 25px;
-    --app-bottom-bar-height: 20px;
+    --app-bottom-bar-height: 25px;
     --app-file-tab-height: 40px;
     --list-descendant-ml: 20px;
     --list-name-plr: 20px;
+    --ace-editor-pt: 10px;
 }

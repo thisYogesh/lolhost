@@ -1212,11 +1212,10 @@
     </div>
 
     <script>
-        var i = 0
         document.querySelectorAll('img').forEach(function(img){
             img.onerror = function(){
+                console.log(this.getAttribute('src'))
                 this.parentNode.remove()
-                i++;
             }
         })
     </script>

@@ -6,6 +6,7 @@
 body{
     font-family: Inconsolata;
     font-weight: 400;
+    font-size: 16px;
     color: var(--color-6);
     cursor: default;
 }
@@ -130,10 +131,58 @@ body{
 }
 
 .app-tab-item {
+    position: relative;
     border-right: 1px solid var(--color-1);
     background-color: var(--color-3);
-    padding: 0 20px;
+    padding: 0 26px 0 20px;
     min-width: 120px;
     box-sizing: border-box;
     text-align: center;
+    cursor: pointer;
+}
+
+.app-tab-item.--active-tab {
+    background-color: var(--color-2);
+    color: #fff
+}
+
+.app-tab-item.--active-tab .app-file-close{
+    opacity: 1
+}
+
+.app-file-close {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 17px;
+    width: 17px;
+    opacity: .3;
+    transition: opacity .5s ease;
+}
+
+.app-file-close:hover, .app-file-close:focus, .app-file-close:active{
+    opacity: 1;
+}
+
+.app-file-close:hover > svg {
+    transform: scale(1.1);
+}
+
+.app-file-close:focus {
+    transform: translateY(-50%) scale(1.1);
+}
+
+.app-file-close > svg {
+    vertical-align: top;
+    width: 17px;
+    height: 17px;
+}
+
+#lol-editor{
+    height: calc(100% - var(--app-file-tab-height));
+}
+
+.ace_gutter, .ace_scroller {
+    padding-top: var(--ace-editor-pt);
 }

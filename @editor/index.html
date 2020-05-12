@@ -3,6 +3,7 @@
     <head>
         <title>&#10084; Lolhost editor</title>
         <link rel="stylesheet" href="./css/style.css"/>
+        <script src="build/src/ace.js"></script>
     </head>
     <body>
         <main class="main-wrapper">
@@ -67,9 +68,19 @@
                                     <a tabindex="0" class="app-list-name file-ex-side-pad --is-file">
                                         <div class="app-list-name-content">
                                             <span class="app-icon-wrapper">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-html"><path fill="currentColor" d="M8 15l6-5.6V12l-4.5 4 4.5 4v2.6L8 17v-2zm16 2.1l-6 5.6V20l4.6-4-4.6-4V9.3l6 5.6v2.2z"/></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-html"><path fill="currentColor" d="M8 15l6-5.6V12l-4.5 4 4.5 4v2.6L8 17v-2zm16 2.1l-6 5.6V20l4.6-4-4.6-4V9.3l6 5.6v2.2z"/></svg>
                                             </span>
                                             index.html
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="app-list-item">
+                                    <a tabindex="0" class="app-list-name file-ex-side-pad --is-file">
+                                        <div class="app-list-name-content">
+                                            <span class="app-icon-wrapper">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" class="app-svg --unknown"><path fill="currentColor" d="M394.1 537.8h411.7v54.7H394.1v-54.7zm0-130.3H624v54.7H394.1v-54.7zm0-130.3h411.7v54.7H394.1v-54.7zm0 390.9H700v54.7H394.1v-54.7z"/></svg>
+                                            </span>
+                                            unknown
                                         </div>
                                     </a>
                                 </li>
@@ -79,14 +90,45 @@
                 </aside>
                 <section class="app-file-viewer app-piller">
                     <div class="app-tab-wrapper app-piller-top">
-                        <div class="app-tab-item">index.html</div>
-                        <div class="app-tab-item">app.js</div>
+                        <div class="app-tab-item --active-tab">
+                            index.html
+                            <a tabindex="0" class="app-file-close">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"></path></svg>
+                            </a>
+                        </div>
+                        <div class="app-tab-item">
+                            app.js
+                            <a tabindex="0" class="app-file-close">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"></path></svg>
+                            </a>
+                        </div>
                     </div>
+                    <div id="lol-editor" class=""></div>
                 </section>
             </section>
             <footer class="app-footer">
 
             </footer>
         </main>
+
+        <script>
+            const html = `<!doctype html>
+<html>
+    <head></head>
+    <body>
+        <h1>Heading</h1>
+    </body>
+</html>`
+            const editor = ace.edit('lol-editor')
+            editor.setOptions({
+                fontFamily: "Inconsolata",
+                fontSize: "16px"
+            });
+
+            editor.setTheme('ace/theme/vs_code')
+            editor.session.setMode("ace/mode/javascript");
+            editor.session.setUseWorker(false);
+            editor.setValue(html, -1)
+        </script>
     </body>
 </html>
