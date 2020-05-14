@@ -202,7 +202,7 @@ module.exports = {
             initUpdated: 'ℹ Server initialize with (updated) config'
         }
         let _config;
-        dirname = normPath(dirname.replace(/\\/g, '/'));
+        dirname = this.normPath(dirname.replace(/\\/g, '/'));
         try{
             let data = fs.readFileSync(dirname + '/' + 'lolhost.config', 'utf-8')
             try{
@@ -213,11 +213,64 @@ module.exports = {
                 console.log(message.syntaxError)
                 console.log(message.initDefault)
             }
-        }catch{
+        }catch(e){
             _config = {}
             console.log(message.initDefault)
         }
 
         return Object.assign(config, _config);
+    },
+
+    getPathInfo({ url, dirname }){
+        const appRx = /^\/@app/;
+        let _url = this.normUrl(this.decode(url))
+        let _dirname = dirname.replace(/\\/g, '/');
+    
+        if(appRx.test(_url)) _url = _url.replace(appRx, '');
+        else _dirname = this.normPath(_dirname)
+    
+        const rootDirName = this.getRootDirName(_dirname) +  _url
+        const currentPath = decodeURIComponent(this.getCurrentPath(_url))    
+        const pathWithDir = _dirname + currentPath
+    
+        return {
+            rootDirName,
+            currentPath,
+            pathWithDir
+        }
+    },
+
+    getContentType(path){
+        const extention = path.match(/\.\w+$/)
+        const ext = extention && extention[0]
+        const isSupportedExtention = this.isSupportedExtention(ext)
+        let contentType = isSupportedExtention ? this.types[ext] : this.types['default']
+
+        return contentType
+    },
+
+    setContentType(res, path){
+        const contentType = this.getContentType(path)
+        res.setHeader('content-type', contentType);
+    },
+
+    getFileInfo(fs, pathWithDir, path, currentPath){
+        const stat = fs.statSync(pathWithDir + '/' + path);
+        const isDirectory = stat.isDirectory()
+        const title = path
+        const isHidden = /^\./.test(title)
+        const href = currentPath ? `${currentPath}/${path}` : `/${path}`
+
+        return {
+            isDirectory,
+            isHidden,
+            href,
+            title,
+            stat
+        }
+    },
+
+    buildResObject(content){
+        return JSON.stringify({ data: content })
     }
 }

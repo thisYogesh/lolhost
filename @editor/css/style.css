@@ -181,8 +181,9 @@ body{
 
 #lol-editor{
     height: calc(100% - var(--app-file-tab-height));
+    border-left: 1px solid var(--color-2);
 }
-
+/* 
 .ace_gutter, .ace_scroller {
     padding-top: var(--ace-editor-pt);
-}
+} */

@@ -2,7 +2,7 @@ define("ace/theme/vs_code",["require","exports","module","ace/lib/dom"], functio
   exports.isDark = true;
   exports.cssClass = "ace-vs-code";
   exports.cssText = ".ace-vs-code .ace_gutter {\
-background: #25282c;\
+background: #252526;\
 color: #c5c8c6;\
 }\
 .ace-vs-code .ace_print-margin {\
@@ -10,7 +10,7 @@ width: 1px;\
 background: #25282c;\
 }\
 .ace-vs-code {\
-background-color: #1d1f21;\
+background-color: #1e1e1e;\
 color: #c5c8c6;\
 }\
 .ace-vs-code .ace_cursor {\
@@ -86,10 +86,9 @@ color: #f0c674;\
 .ace-vs-code .ace_heading,\
 .ace-vs-code .ace_markup.ace_heading,\
 .ace-vs-code .ace_string {\
-color: #b5bd68;\
+color: #fff;\
 }\
 .ace-vs-code .ace_entity.ace_name.ace_tag,\
-.ace-vs-code .ace_entity.ace_other.ace_attribute-name,\
 .ace-vs-code .ace_meta.ace_tag,\
 .ace-vs-code .ace_string.ace_regexp,\
 .ace-vs-code .ace_variable {\

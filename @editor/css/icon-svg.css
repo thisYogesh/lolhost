@@ -19,8 +19,13 @@
     position: absolute;
 }
 
-.--folder-svg {
+.--svg-folder {
     width: 15px;
+}
+
+.--svg-folder-open{
+    width: 20px;
+    height: 20px;
 }
 
 .--common {
@@ -41,4 +46,8 @@
 
 .--svg-html{
     color: #EF7623
+}
+
+.--svg-image{
+    color: #9F74B3;
 }
