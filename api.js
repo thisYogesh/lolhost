@@ -1,4 +1,4 @@
-const { http, main, fs, util } = require('./js/modules')(__dirname)
+const { http, main, fs, util } = require('./js/modules')()
 
 function API(port = 8000){
     http.createServer(function(req, res){
@@ -34,7 +34,7 @@ function API(port = 8000){
         })
     }).listen(port)
 
-    console.log(`✔︎ Editor created at ❤ http://localhost:${port}`)
+    console.log(`✔ Editor created at ❤ http://localhost:${port}`)
 }
 
 module.exports = API

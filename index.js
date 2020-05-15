@@ -1,7 +1,8 @@
 const { http, util, fs, main } = require('./js/modules')()
+const lolitor = require('./api')
 const config = util.getConfig(__dirname, fs);
 
-function server(port = 8000){
+function server(port1 = 8000, port2 = 8001){
     http.createServer(function(req, res){
         const infoHeaders = ['Filename', 'Type', 'Created', 'Size']
         let dirInfo = [util.createWrapper(infoHeaders, 'th', null)];
@@ -72,9 +73,10 @@ function server(port = 8000){
                 });
             }
         })
-    }).listen(port)
+    }).listen(port1)
     
-    console.log(`✔︎ Server created at ❤ http://localhost:${port}`)
+    lolitor(port2)
+    console.log(`✔︎ Server created at ❤ http://localhost:${port1}`)
 }
 
 module.exports = server
