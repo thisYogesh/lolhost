@@ -14,14 +14,7 @@
             "type": "node",
             "request": "launch",
             "name": "My Localhost",
-            "program": "${workspaceFolder}/app.js"
+            "program": "${workspaceFolder}/js/app.js"
         },
-
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Color Console",
-            "program": "${workspaceFolder}/js/print.js"
-        }
     ]
 }
