@@ -9,8 +9,13 @@ function API(port = 8000){
             res,
             dirname: __dirname
         }, {
-            onFile(err, content, { currentPath }){
-                res.end("OnFile")
+            onFile(err, content){
+                if(!err){
+                    res.end(util.buildResObject(content))
+                }else{
+                    res.writeHead(404);
+                    res.end(util.buildResObject(false))
+                }
             },
             onDir(err, list, { currentPath, pathWithDir }){
                 let responceData;
@@ -24,17 +29,17 @@ function API(port = 8000){
                     responceData = fileList
                 }else{
                     responceData = false
+                    res.writeHead(404);
                 }
 
                 res.end(util.buildResObject(responceData))
             },
             onError(){
-                res.end("OnError")
+                res.writeHead(404);
+                res.end(util.buildResObject(false))
             }
         })
     }).listen(port)
-
-    console.log(`✔ Editor created at ❤ http://localhost:${port}`)
 }
 
 module.exports = API

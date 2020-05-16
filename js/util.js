@@ -195,7 +195,11 @@ module.exports = {
         response(res, errorPage(code))
     },
 
-    getConfig(dirname, fs){
+    getConfig(){
+        return config
+    },
+
+    getLiveConfig(dirname, fs){
         const message = {
             syntaxError: '✘ Syntax error in lolhost.config. Please follow JSON Syntax Rules',
             initDefault: 'ℹ Server initialize with (default) config',
@@ -272,5 +276,16 @@ module.exports = {
 
     buildResObject(content){
         return JSON.stringify({ data: content })
+    },
+
+    redirectIfRequired(req, res, cb){
+        if(!/\/$/.test(req.url)){
+            res.writeHead(302, {
+                Location: `http://${req.headers.host + req.url}/`
+            })
+            res.end()
+        }else{
+            cb()
+        }
     }
 }

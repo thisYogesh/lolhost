@@ -1,71 +1,5 @@
-const lt = '\u256D'
-const rt = '\u256E'
-const lb = '\u2570'
-const rb = '\u256F'
-const hl = '\u2500'
-const vl = '\u2502'
-const reset = "\x1b[0m";
-
-const effect = {
-    bright : 0,
-    dim : 1,
-    underscore : 2,
-    blink : 3,
-    reverse : 4,
-    hidden : 5
-}
-
-/**
- * Color enum
- */
-
-const color = {
-    black : 0,
-    red : 1,
-    green : 2,
-    yellow : 3,
-    blue : 4,
-    magenta : 5,
-    cyan : 6,
-    white : 7,
-}
-
-const type = {
-    fg: 1,
-    bg: 2,
-    fb: 3
-}
-
-const fgCodes = [
-    "\x1b[30m",
-    "\x1b[31m",
-    "\x1b[32m",
-    "\x1b[33m",
-    "\x1b[34m",
-    "\x1b[35m",
-    "\x1b[36m",
-    "\x1b[37m",
-]
-
-const bgCodes = [
-    "\x1b[40m",
-    "\x1b[41m",
-    "\x1b[42m",
-    "\x1b[43m",
-    "\x1b[44m",
-    "\x1b[45m",
-    "\x1b[46m",
-    "\x1b[47m",
-]
-
-const effectCodes = [
-    "\x1b[1m",
-    "\x1b[2m",
-    "\x1b[4m",
-    "\x1b[5m",
-    "\x1b[7m",
-    "\x1b[8m",
-]
+const { effect, color, colorType, valueType } = require('./enums')
+const { frame, reset, fgCodes, bgCodes, effectCodes } = require('./unicodes')
 
 const log = {
     value(v){
@@ -74,21 +8,21 @@ const log = {
         return this
     },
     effect(code){
-        this._value = this.setEffect(code) + this._value
+        if(code !== undefined) this._value = this.setEffect(code) + this._value
         return this
     },
     color(ctype, colorCode1, colorCode2){
         let value = ''
         switch(ctype){
-            case type.fg:
+            case colorType.fg:
                 value = this.forground(colorCode1)
                 break;
             
-            case type.bg:
+            case colorType.bg:
                 value = this.background(colorCode1)
                 break;
 
-            case type.fb:
+            case colorType.fb:
                 value = this.forground(colorCode1)
                 value += this.background(colorCode2)
                 break;
@@ -111,9 +45,7 @@ const log = {
             this.stack.push(this._value += reset)
             this._value = ''
         }
-        // return this
     },
-
     return(){
         this.end()
         this._value = ''
@@ -133,7 +65,7 @@ function charMultiplier(len, char){
 }
 
 function getHL(len){
-    return charMultiplier(len, hl)
+    return charMultiplier(len, frame.hl)
 }
 
 function getSpace(len){
@@ -141,34 +73,94 @@ function getSpace(len){
 }
 
 function buildContent(lines, maxLen){
-    return lines.reduce(function(newlines, text){
-        const space = getSpace(maxLen - text.length)
+    return lines.reduce(function(newlines, lineItem){
+        const lineType = typeof lineItem === 'string' ? 1 : 0
+        const value = lineType === valueType.Object ? lineItem.value : lineItem
+        const diff = lineType === valueType.Object ? lineItem.diff : 0
+        const space = getSpace(maxLen - value.length + diff)
         newlines.push(log
-            .value(`${vl}`)
-            .color(type.fg, color.green)
-            .value(text)
-            .color(type.fg, color.white)
-            .value(`${space}${vl}\n`)
-            .color(type.fg, color.green)
+            .value(`${frame.vl}`)
+            .color(colorType.fg, color.green)
+            .value(value)
+            .color(colorType.fg, color.white)
+            .value(`${space}${frame.vl}\n`)
+            .color(colorType.fg, color.green)
             .return()
         )
         return newlines
     }, [])
 }
 
-function getBoxData(text){
-    const lines = text.split('\n')
-    let maxLen = 0
-    lines.forEach(line => {
-        const len = line.length
-        if(len > maxLen){
-            maxLen = len
+function formatLine(value, options){
+    if(options){
+        value = log
+        .value(value)
+        .effect(options.effect)
+        .color(options.type, options.color1, options.color2)
+        .return()
+    }
+    return value
+}
+
+function combineValues(values){
+    let val = ''
+    if(Array.isArray(values)){
+        values.forEach(function(item){
+            val += (item.value || item)
+        })
+    }else{
+        val = values
+    }
+
+    return val
+}
+
+function buildupLines(line, maxLen, dataset){
+    const lineType = typeof line === 'string' ? 1 : 0
+    const lineValue = lineType === valueType.Object ? combineValues(line.value || line.values) : line
+    const lines = lineValue.split('\n')
+
+    lines.forEach((lineItem, i) => {
+        const len = lineItem.length
+        if(len > maxLen) maxLen = len
+
+        if(lineType === valueType.Object){
+            let formattedValue = ''
+
+            if(line.value){
+                formattedValue = formatLine(lineItem, line.options)
+            }else{
+                formattedValue = line.values.reduce(function(fvalues, lineWord){
+                    fvalues += formatLine((lineWord.value || lineWord), lineWord.options)
+                    return fvalues
+                }, '')
+            }
+
+            lines[i] = {
+                value: formattedValue,
+                diff: formattedValue.length - len
+            }
         }
     })
 
+    dataset.push.apply(dataset, lines)
+
+    return maxLen
+}
+
+function getBoxData(lines){
+    const dataset = []
+    let maxLen = 0
+    if(Array.isArray(lines)){
+        lines.forEach(function(line){
+            maxLen = buildupLines(line, maxLen, dataset)
+        })
+    }else{
+        maxLen = buildupLines(lines, maxLen, dataset)
+    }
+
     return {
-        lines,
-        maxLen
+        lines: dataset, maxLen
     }
 }
 
@@ -176,20 +168,23 @@ function printBox(text){
     const data = getBoxData(text)
     const HL = getHL(data.maxLen)
     const header = log
-        .value(`${lt}${HL}${rt}\n`)
-        .color(type.fg, color.green)
+        .value(`${frame.lt}${HL}${frame.rt}\n`)
+        .color(colorType.fg, color.green)
         .return()
 
     const content = buildContent(data.lines, data.maxLen)
 
     const footer = log
-        .value(`${lb}${HL}${rb}`)
-        .color(type.fg, color.green)
+        .value(`${frame.lb}${HL}${frame.rb}`)
+        .color(colorType.fg, color.green)
         .return()
 
     return header + content.join('') + footer;
 }
 
-console.log(printBox(`  Server is live at http://localhost:8000\n  Editor is live at http://localhost:8001  `))
-
-module.exports = printBox
+module.exports = {
+    printBox,
+    colorType,
+    color,
+    effect
+}
