@@ -2,6 +2,11 @@ const { http, main, fs, util } = require('./js/modules')()
 
 function API(port = 8000){
     http.createServer(function(req, res){
+        if(req.method === 'GET'){
+            res.writeHead(503, "DND")
+            res.end("<h1>Service Unavailable</h1>")
+            return;
+        }
         res.setHeader('content-type', 'application/json');
 
         main({

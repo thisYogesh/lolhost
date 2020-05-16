@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>&#10084; Lolhost editor</title>
-        <link rel="stylesheet" href="./css/style.css"/>
         <script src="./build/src/ace.js"></script>
     </head>
     <body>
@@ -149,28 +148,5 @@
 
             </footer>
         </main>
-
-        <script>
-            const html = `<!doctype html>
-<html>
-    <head></head>
-    <body>
-        <h1 class='app-title'>Heading</h1>
-    </body>
-</html>`
-            const editor = ace.edit('lol-editor')
-            editor.setOptions({
-                fontFamily: "Inconsolata",
-                fontSize: "16px"
-            });
-
-            editor.setTheme('ace/theme/vs_code')
-            editor.session.setMode("ace/mode/html");
-
-            // to disable syntax check
-            editor.session.setUseWorker(false);
-
-            editor.setValue(html, -1)
-        </script>
     </body>
 </html>

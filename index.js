@@ -1,5 +1,5 @@
 const { http, util, fs, main } = require('./js/modules')()
-const lolitor = require('./api')
+const lolitor = require('./lolitor')
 const config = util.getConfig();
 // const config = util.getConfig(__dirname, fs);
 const { printBox, color, colorType, effect } = require('./js/print')
