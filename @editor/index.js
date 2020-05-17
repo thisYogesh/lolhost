@@ -1,3 +1,3 @@
-import './css/style.css'
-import './js/app.js'
-import './js/sdk.js'
+import "./css/style.css";
+import sdk from "./js/sdk.js";
+sdk();

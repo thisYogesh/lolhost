@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>&#10084;2 Lolhost editor</title>
+    <script src="@app/lolitor/build/src/ace.js"></script>
+    <link href="@app/css/font.lolitor.css" rel="stylesheet"></head>
+    <link href="@app/lolitor/main.css" rel="stylesheet"></head>
+  <body>
+    <main class="main-wrapper">
+      <header class="app-header">
+        index.html <a class="emb-spiral">~</a><a class="emb-heart">&#10084;</a
+        ><a class="emb-spiral --twist">~</a> Lolhost
+      </header>
+      <section class="app-middle">
+        <aside class="app-file-explorer app-piller">
+          <div class="app-file-ex-title app-piller-top file-ex-side-pad">
+            File Explorer
+          </div>
+          <ul class="app-list-wrapper --root-wrapper">
+            <li class="app-list-item">
+              <!-- <a class="app-list-name file-ex-side-pad">Lolhost</a> -->
+              <a class="app-list-name file-ex-side-pad --root --is-folder">
+                Lolhost
+              </a>
+              <ul class="app-list-wrapper">
+                <li class="app-list-item">
+                  <a
+                    tabindex="0"
+                    class="app-list-name file-ex-side-pad --is-folder"
+                  >
+                    <div class="app-list-name-content">
+                      <span class="app-icon-wrapper">
+                        <svg
+                          class="app-svg --svg-folder-open"
+                          height="512px"
+                          id="Layer_1"
+                          version="1.1"
+                          viewBox="0 0 512 512"
+                          width="512px"
+                          xml:space="preserve"
+                          xmlns="http://www.w3.org/2000/svg"
+                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                        >
+                          <g>
+                            <path
+                              fill="currentColor"
+                              d="M430.1,192H81.9c-17.7,0-18.6,9.2-17.6,20.5l13,183c0.9,11.2,3.5,20.5,21.1,20.5h316.2c18,0,20.1-9.2,21.1-20.5l12.1-185.3   C448.7,199,447.8,192,430.1,192z"
+                            />
+                            <g>
+                              <path
+                                fill="currentColor"
+                                d="M426.2,143.3c-0.5-12.4-4.5-15.3-15.1-15.3c0,0-121.4,0-143.2,0c-21.8,0-24.4,0.3-40.9-17.4C213.3,95.8,218.7,96,190.4,96    c-22.6,0-75.3,0-75.3,0c-17.4,0-23.6-1.5-25.2,16.6c-1.5,16.7-5,57.2-5.5,63.4h343.4L426.2,143.3z"
+                              />
+                            </g>
+                          </g>
+                        </svg>
+                      </span>
+                      images
+                    </div>
+                  </a>
+                  <ul class="app-list-wrapper">
+                    <li class="app-list-item">
+                      <a
+                        tabindex="0"
+                        class="app-list-name file-ex-side-pad --is-file"
+                      >
+                        <div class="app-list-name-content">
+                          <span class="app-icon-wrapper">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 32 32"
+                              class="app-svg --common --svg-image"
+                            >
+                              <path
+                                fill="currentColor"
+                                d="M21.3 17.2c1 0 1.8-.8 1.8-1.8s-.8-1.8-1.8-1.8-1.8.8-1.8 1.8.8 1.8 1.8 1.8zm-11.1-5.5v12.4h15.3V11.7H10.2zm.7.7h13.9v10.8l-3.6-4.1-2.2 2.6-4.4-4.7-3.7 4.6v-9.2zm9.8-4.5H6.5v10.8h1.9V9.6h12.3V7.9z"
+                              />
+                            </svg>
+                          </span>
+                          favicon.ico
+                        </div>
+                      </a>
+                    </li>
+                    <li class="app-list-item">
+                      <a
+                        tabindex="0"
+                        class="app-list-name file-ex-side-pad --is-file"
+                      >
+                        <div class="app-list-name-content">
+                          <span class="app-icon-wrapper">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 32 32"
+                              class="app-svg --common --svg-image"
+                            >
+                              <path
+                                fill="currentColor"
+                                d="M21.3 17.2c1 0 1.8-.8 1.8-1.8s-.8-1.8-1.8-1.8-1.8.8-1.8 1.8.8 1.8 1.8 1.8zm-11.1-5.5v12.4h15.3V11.7H10.2zm.7.7h13.9v10.8l-3.6-4.1-2.2 2.6-4.4-4.7-3.7 4.6v-9.2zm9.8-4.5H6.5v10.8h1.9V9.6h12.3V7.9z"
+                              />
+                            </svg>
+                          </span>
+                          flower.jpg
+                        </div>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="app-list-item">
+                  <a
+                    tabindex="0"
+                    class="app-list-name file-ex-side-pad --is-folder"
+                  >
+                    <div class="app-list-name-content">
+                      <span class="app-icon-wrapper">
+                        <svg
+                          class="app-svg --svg-folder"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 32 32"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M28.8 6.9H16.1V5.7c0-1.4-1.1-2.5-2.5-2.5H.6v25.6h30.6V9.4c.1-1.4-1-2.5-2.4-2.5z"
+                          ></path>
+                        </svg>
+                      </span>
+                      css
+                    </div>
+                  </a>
+                  <ul class="app-list-wrapper">
+                    <li class="app-list-item">
+                      <a
+                        tabindex="0"
+                        class="app-list-name file-ex-side-pad --is-file"
+                      >
+                        <div class="app-list-name-content">
+                          <span class="app-icon-wrapper">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 32 32"
+                              class="app-svg --common --svg-css"
+                            >
+                              <path
+                                fill="currentColor"
+                                d="M10.3 23.3l.8-4H8.6v-2.1h3l.5-2.5H9.5v-2.1h3.1l.8-3.9h2.8l-.8 3.9h2.8l.8-3.9h2.8l-.8 3.9h2.5v2.1h-2.9l-.6 2.5h2.6v2.1h-3l-.8 4H16l.8-4H14l-.8 4h-2.9zm6.9-6.1l.5-2.5h-2.8l-.5 2.5h2.8z"
+                              ></path>
+                            </svg>
+                          </span>
+                          style.css
+                        </div>
+                      </a>
+                    </li>
+                    <li class="app-list-item">
+                      <a
+                        tabindex="0"
+                        class="app-list-name file-ex-side-pad --is-file"
+                      >
+                        <div class="app-list-name-content">
+                          <span class="app-icon-wrapper">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 32 32"
+                              class="app-svg --common --svg-css"
+                            >
+                              <path
+                                fill="currentColor"
+                                d="M10.3 23.3l.8-4H8.6v-2.1h3l.5-2.5H9.5v-2.1h3.1l.8-3.9h2.8l-.8 3.9h2.8l.8-3.9h2.8l-.8 3.9h2.5v2.1h-2.9l-.6 2.5h2.6v2.1h-3l-.8 4H16l.8-4H14l-.8 4h-2.9zm6.9-6.1l.5-2.5h-2.8l-.5 2.5h2.8z"
+                              ></path>
+                            </svg>
+                          </span>
+                          reset.css
+                        </div>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="app-list-item">
+                  <a
+                    tabindex="0"
+                    class="app-list-name file-ex-side-pad --is-file"
+                  >
+                    <div class="app-list-name-content">
+                      <span class="app-icon-wrapper">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 32 32"
+                          class="app-svg --common --svg-js"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M11.4 10h2.7v7.6c0 3.4-1.6 4.6-4.3 4.6-.6 0-1.5-.1-2-.3l.3-2.2c.4.2.9.3 1.4.3 1.1 0 1.9-.5 1.9-2.4V10zm5.1 9.2c.7.4 1.9.8 3 .8 1.3 0 1.9-.5 1.9-1.3s-.6-1.2-2-1.7c-2-.7-3.3-1.8-3.3-3.6 0-2.1 1.7-3.6 4.6-3.6 1.4 0 2.4.3 3.1.6l-.6 2.2c-.5-.2-1.3-.6-2.5-.6s-1.8.5-1.8 1.2c0 .8.7 1.1 2.2 1.7 2.1.8 3.1 1.9 3.1 3.6 0 2-1.6 3.7-4.9 3.7-1.4 0-2.7-.4-3.4-.7l.6-2.3z"
+                          />
+                        </svg>
+                      </span>
+                      app.js
+                    </div>
+                  </a>
+                </li>
+                <li class="app-list-item">
+                  <a
+                    tabindex="0"
+                    class="app-list-name file-ex-side-pad --is-file"
+                  >
+                    <div class="app-list-name-content">
+                      <span class="app-icon-wrapper">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 32 32"
+                          class="app-svg --common --svg-html"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M8 15l6-5.6V12l-4.5 4 4.5 4v2.6L8 17v-2zm16 2.1l-6 5.6V20l4.6-4-4.6-4V9.3l6 5.6v2.2z"
+                          />
+                        </svg>
+                      </span>
+                      index.html
+                    </div>
+                  </a>
+                </li>
+                <li class="app-list-item">
+                  <a
+                    tabindex="0"
+                    class="app-list-name file-ex-side-pad --is-file"
+                  >
+                    <div class="app-list-name-content">
+                      <span class="app-icon-wrapper">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 1200 1000"
+                          class="app-svg --unknown"
+                        >
+                          <path
+                            fill="currentColor"
+                            d="M394.1 537.8h411.7v54.7H394.1v-54.7zm0-130.3H624v54.7H394.1v-54.7zm0-130.3h411.7v54.7H394.1v-54.7zm0 390.9H700v54.7H394.1v-54.7z"
+                          />
+                        </svg>
+                      </span>
+                      unknown
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </aside>
+        <section class="app-file-viewer app-piller">
+          <div class="app-tab-wrapper app-piller-top">
+            <div class="app-tab-item --active-tab">
+              index.html
+              <a tabindex="0" class="app-file-close">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"
+                  ></path>
+                </svg>
+              </a>
+            </div>
+            <div class="app-tab-item">
+              app.js
+              <a tabindex="0" class="app-file-close">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"
+                  ></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div id="lol-editor" class=""></div>
+        </section>
+      </section>
+      <footer class="app-footer"></footer>
+    </main>
+    <script src="@app/lolitor/main.bundle.js"></script>
+</body>
+</html>

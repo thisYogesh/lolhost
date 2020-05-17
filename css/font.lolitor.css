@@ -1,41 +1,41 @@
 @font-face{
     font-family: Inconsolata;
-    src: url(../fonts/Inconsolata/Inconsolata-ExtraLight.ttf);
+    src: url(/@app/fonts/Inconsolata/Inconsolata-ExtraLight.ttf);
     font-weight: 100;
 }
 
 @font-face{
     font-family: Inconsolata;
-    src: url(../fonts/Inconsolata/Inconsolata-Light.ttf);
+    src: url(/@app/fonts/Inconsolata/Inconsolata-Light.ttf);
     font-weight: 200;
 }
 
 @font-face{
     font-family: Inconsolata;
-    src: url(../fonts/Inconsolata/Inconsolata-Regular.ttf);
+    src: url(/@app/fonts/Inconsolata/Inconsolata-Regular.ttf);
     font-weight: 400;
 }
 
 @font-face{
     font-family: Inconsolata;
-    src: url(../fonts/Inconsolata/Inconsolata-Medium.ttf);
+    src: url(/@app/fonts/Inconsolata/Inconsolata-Medium.ttf);
     font-weight: 500;
 }
 
 @font-face{
     font-family: Inconsolata;
-    src: url(../fonts/Inconsolata/Inconsolata-SemiBold.ttf);
+    src: url(/@app/fonts/Inconsolata/Inconsolata-SemiBold.ttf);
     font-weight: 600;
 }
 
 @font-face{
     font-family: Inconsolata;
-    src: url(../fonts/Inconsolata/Inconsolata-Bold.ttf);
+    src: url(/@app/fonts/Inconsolata/Inconsolata-Bold.ttf);
     font-weight: 700;
 }
 
 @font-face{
     font-family: Inconsolata;
-    src: url(../fonts/Inconsolata/Inconsolata-Black.ttf);
+    src: url(/@app/fonts/Inconsolata/Inconsolata-Black.ttf);
     font-weight: 800;
 }
