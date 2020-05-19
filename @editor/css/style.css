@@ -71,11 +71,21 @@ body{
 }
 
 .app-list-wrapper.--root-wrapper {
-    position:relative
+    position:relative;
+    height: calc(100% - var(--app-file-tab-height));
+    overflow: hidden;
 }
 
-.app-list-name:before {
-    content: '';
+.app-list-wrapper.--root-wrapper > .app-list-item{
+    height: 100%;
+}
+
+.app-list-wrapper.--root-wrapper > .app-list-item > .app-list-wrapper {
+    height: calc(100% - var(--list-item-height));
+    overflow: auto;
+}
+
+.app-list-name > .app-list-highlight {
     position: absolute;
     left: 0;
     height: inherit;
@@ -85,18 +95,19 @@ body{
     transition: opacity .5s ease;
 }
 
-.app-list-name:focus:before {
-    background-color: var(--color-4);
-    opacity: 1;
+.app-list-name.--active:focus > .app-list-highlight {
+  background-color: var(--color-4);
+  opacity: 1;
 }
 
-.app-list-name:not(.--root):hover:before{
+.app-list-name:not(.--root):hover > .app-list-highlight{
     opacity: 1;
 }
 
 .app-list-name-content{
     position: relative;
     padding-left: 3px;
+    white-space: nowrap;
 }
 
 .app-list-name.--root {
@@ -143,6 +154,16 @@ body{
 .app-tab-item.--active-tab {
     background-color: var(--color-2);
     color: #fff
+}
+
+.app-tab-item.--active-tab:before {
+  content: '';
+  background-color: var(--color-4);
+  position: absolute;
+  height: 2px;
+  left: 0;
+  top: 0;
+  width: 100%;
 }
 
 .app-tab-item.--active-tab .app-file-close{

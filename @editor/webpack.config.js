@@ -30,14 +30,14 @@ module.exports = {
     }),
     // new CleanWebpackPlugin(),
     // new HtmlWebpackPlugin({
-      //   title: "Index file",
+    //   title: "Index file",
     //   template: "index.html"
     // }),
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
       filename: "[name].css",
-      chunkFilename: '[id].css',
+      chunkFilename: "[id].css"
     })
   ],
 
@@ -50,7 +50,7 @@ module.exports = {
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         // use: ["file-loader"],
-        loader: 'file-loader?name=[name].[ext]' 
+        loader: "file-loader?name=[name].[ext]"
       }
     ]
   }

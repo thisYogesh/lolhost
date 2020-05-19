@@ -22,14 +22,14 @@ const getElAttrs = (tag) => {
 
 const wrap = (wrapperEl, innerHtml) => {
     try{
-        const elAttrs = getElAttrs(wrapperEl)
-        const wrapperElStart = elAttrs.start
-        const wrapperElEnd = elAttrs.end
+      const elAttrs = getElAttrs(wrapperEl)
+      const wrapperElStart = elAttrs.start
+      const wrapperElEnd = elAttrs.end
 
-        let el = innerHtml ? `<${wrapperElStart}>${innerHtml}</${wrapperElEnd}>` : `</${wrapperElEnd}><${wrapperElStart}>`
-        return el
+      let el = innerHtml ? `<${wrapperElStart}>${innerHtml}</${wrapperElEnd}>` : `</${wrapperElEnd}><${wrapperElStart}>`
+      return el
     }catch{
-        console.log('Error at .wrap() in util.js')
+      console.log('Error at .wrap() in util.js')
     }
 }
 
@@ -229,8 +229,9 @@ module.exports = {
         const appRx = /^\/@app/;
         let _url = this.normUrl(this.decode(url))
         let _dirname = dirname.replace(/\\/g, '/');
+        const isAppURL =  appRx.test(_url)
     
-        if(appRx.test(_url)) _url = _url.replace(appRx, '');
+        if(isAppURL) _url = _url.replace(appRx, '');
         else _dirname = this.normPath(_dirname)
     
         const rootDirName = this.getRootDirName(_dirname) +  _url
@@ -240,7 +241,8 @@ module.exports = {
         return {
             rootDirName,
             currentPath,
-            pathWithDir
+            pathWithDir,
+            isAppURL
         }
     },
 
@@ -278,12 +280,14 @@ module.exports = {
         return JSON.stringify({ data: content })
     },
 
+    redirect(res, url){
+        res.writeHead(302, { Location: url })
+        res.end()
+    },
+
     redirectIfRequired(req, res, cb){
         if(!/\/$/.test(req.url)){
-            res.writeHead(302, {
-                Location: `http://${req.headers.host + req.url}/`
-            })
-            res.end()
+            this.redirect(res, `http://${req.headers.host + req.url}/`)
         }else{
             cb()
         }
