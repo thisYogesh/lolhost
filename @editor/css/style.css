@@ -85,6 +85,15 @@ body{
     overflow: auto;
 }
 
+.app-list-wrapper:empty:after {
+  content: 'This folder is empty';
+  margin-left: 3px;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #616161;
+  text-shadow: 0px 1px #000;
+}
+
 .app-list-name > .app-list-highlight {
     position: absolute;
     left: 0;

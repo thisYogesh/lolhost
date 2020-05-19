@@ -1,3 +1,5 @@
+const svgExt = require('./extIcons');
+
 function lolitor() {
   this.initApp();
   this.initEditor();
@@ -133,7 +135,7 @@ Object.assign(lolitor.prototype, {
     const href = item.href;
     const iconHtml = this.getIconHtml(item);
     const html = `
-        <li class="app-list-item">
+        <li class="app-list-item" data-isOpen="false" data-isFetched="false">
           <a tabindex="0" data-href="${href}" class="app-list-name file-ex-side-pad ${itemTypeClass} ${itemHiddenClass}">
             <span class="app-list-highlight"></span> 
             <div class="app-list-name-content">
@@ -153,34 +155,21 @@ Object.assign(lolitor.prototype, {
   },
   getIconHtml(item) {
     const type = this.getExtentionType(item);
-    let svg = "";
+    let svg = svgExt[type];
 
-    switch (type) {
-      case "html":
-        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-html"><path fill="currentColor" d="M8 15l6-5.6V12l-4.5 4 4.5 4v2.6L8 17v-2zm16 2.1l-6 5.6V20l4.6-4-4.6-4V9.3l6 5.6v2.2z"></path></svg>`;
-        break;
-
-      case "css":
-        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-css"><path fill="currentColor" d="M10.3 23.3l.8-4H8.6v-2.1h3l.5-2.5H9.5v-2.1h3.1l.8-3.9h2.8l-.8 3.9h2.8l.8-3.9h2.8l-.8 3.9h2.5v2.1h-2.9l-.6 2.5h2.6v2.1h-3l-.8 4H16l.8-4H14l-.8 4h-2.9zm6.9-6.1l.5-2.5h-2.8l-.5 2.5h2.8z"></path></svg>`;
-        break;
-
-      case "js":
-        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-js"><path fill="currentColor" d="M11.4 10h2.7v7.6c0 3.4-1.6 4.6-4.3 4.6-.6 0-1.5-.1-2-.3l.3-2.2c.4.2.9.3 1.4.3 1.1 0 1.9-.5 1.9-2.4V10zm5.1 9.2c.7.4 1.9.8 3 .8 1.3 0 1.9-.5 1.9-1.3s-.6-1.2-2-1.7c-2-.7-3.3-1.8-3.3-3.6 0-2.1 1.7-3.6 4.6-3.6 1.4 0 2.4.3 3.1.6l-.6 2.2c-.5-.2-1.3-.6-2.5-.6s-1.8.5-1.8 1.2c0 .8.7 1.1 2.2 1.7 2.1.8 3.1 1.9 3.1 3.6 0 2-1.6 3.7-4.9 3.7-1.4 0-2.7-.4-3.4-.7l.6-2.3z"></path></svg>`;
-        break;
-
-      case "jpg":
-      case "jpeg":
-      case "gif":
-      case "ico":
-      case "png":
-        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="app-svg --common --svg-image"><path fill="currentColor" d="M21.3 17.2c1 0 1.8-.8 1.8-1.8s-.8-1.8-1.8-1.8-1.8.8-1.8 1.8.8 1.8 1.8 1.8zm-11.1-5.5v12.4h15.3V11.7H10.2zm.7.7h13.9v10.8l-3.6-4.1-2.2 2.6-4.4-4.7-3.7 4.6v-9.2zm9.8-4.5H6.5v10.8h1.9V9.6h12.3V7.9z"></path></svg>`;
-        break;
-
-      case "folder":
-        svg = `<svg class="app-svg --svg-folder" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M28.8 6.9H16.1V5.7c0-1.4-1.1-2.5-2.5-2.5H.6v25.6h30.6V9.4c.1-1.4-1-2.5-2.4-2.5z"></path></svg>`;
-        break;
-      default:
-        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" class="app-svg --unknown"><path fill="currentColor" d="M394.1 537.8h411.7v54.7H394.1v-54.7zm0-130.3H624v54.7H394.1v-54.7zm0-130.3h411.7v54.7H394.1v-54.7zm0 390.9H700v54.7H394.1v-54.7z"></path></svg>`;
+    if(!svg) {
+      switch (type) {
+        case "jpg":
+        case "jpeg":
+        case "gif":
+        case "ico":
+        case "png":
+          svg = svgExt.images;
+          break;
+        default:
+          svg = svgExt.defaulf;
+          break;
+      }
     }
 
     return `<span class="app-icon-wrapper">${svg}</span>`;
@@ -207,6 +196,11 @@ Object.assign(lolitor.prototype, {
     const mt = rootWrapper.scrollTop;
     const hl = listNameEl.querySelector(".app-list-highlight");
     hl.style.marginTop = -mt + "px";
+  },
+
+  datasetInit(el){
+    const dataset = el.dataset
+    dataset.isOpen = dataset.isOpen === "false" ? true : false;
   }
 });
 
