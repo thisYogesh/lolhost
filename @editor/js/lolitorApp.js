@@ -1,8 +1,11 @@
 const svgExt = require('./extIcons');
+const Bool = {
+  TRUE: "true",
+  FALSE: "false"
+}
 
 function lolitor() {
   this.initApp();
-  this.initEditor();
 }
 
 /**
@@ -10,6 +13,12 @@ function lolitor() {
  */
 Object.assign(lolitor.prototype, {
   initApp() {
+    // save fetched path to avoid extra requests
+    this.fetchedPath = {}
+
+    // save all opened tab reference
+    this.tabReference= {}
+
     this.setRootListDOM();
     this.fetchRoot()
   },
@@ -25,14 +34,40 @@ Object.assign(lolitor.prototype, {
   },
 
   fetchItem(el){
-    const listName = el.querySelector('.app-list-name');
-    const href = listName && listName.dataset.href
+    const dataset = el.dataset
+    const path = dataset.href
+    const isDirectory = dataset.isdirectory
     
-    href && this.getData(href, (err, resp) => {
-      if(!err){
-        this.prepareList(resp.data, el)
-      }
-    })
+    if(isDirectory === Bool.TRUE){
+      this.fetchDirectory(path, el)
+    }else{
+      this.openFile(path)
+    }
+  },
+
+  openFile(path){
+    const tabRef = this.tabReference[path]
+    if(tabRef) {
+      this.showTab(tabRef) 
+      return;
+    }
+
+    this.createTab(path)
+  },
+
+  fetchDirectory(path, el){
+    const isFetched = this.fetchedPath[path]
+    if(!isFetched){
+      this.setFetchedData(path, true)
+      path && this.getData(path, (err, resp) => {
+        if(!err){
+          this.prepareList(resp.data, el)
+          this.toggleList(el)
+        }
+      })
+    }else{
+      this.toggleList(el)
+    }
   }
 });
 
@@ -49,6 +84,10 @@ Object.assign(lolitor.prototype, {
         cb(e, null)
       }
     });
+  },
+
+  setFetchedData(path, data){
+    this.fetchedPath[path] = data
   }
 })
 
@@ -56,25 +95,66 @@ Object.assign(lolitor.prototype, {
  * Editor
  */
 Object.assign(lolitor.prototype, {
-  initEditor() {
-    const editor = ace.edit("lol-editor");
-    this.editor = editor;
+  initEditor(selector, tabReference) {
+    const editor = ace.edit(selector);
     editor.setOptions({
       fontFamily: "Inconsolata",
       fontSize: "16px"
     });
     editor.session.setUseWorker(false);
 
+    tabReference.editor = editor;
+    this.currentEditor = editor;
     this.setTheme();
   },
 
-  setTheme() {
-    this.editor.setTheme("ace/theme/vs_code");
+  setTheme(editor) {
+    (editor || this.currentEditor).setTheme("ace/theme/vs_code");
   },
 
   setCodeTheme() {
-    this.editor.session.setMode("ace/mode/html");
+    (editor || this.currentEditor).session.setMode("ace/mode/html");
   },
+
+  createTab(path){
+    const editorParent = document.querySelector('#lol-editor')
+    const tabParent = document.querySelector('.app-tab-wrapper')
+    const filename = this.lastArrayItem(path.split('/'))
+
+    // create tab editor area
+    const tab = document.createElement('div');
+    const tabReference = { el: tab, path }
+    this.tabCount = this.tabCount || 0
+    const tabId = `lol-editor-tab-${this.tabCount++}`
+    tab.classList.add('lol-editor-tab')
+    tab.setAttribute('id', tabId)
+    
+    // create tab button
+    const tabButton = this.createTabDOM(filename, tabReference)
+    tabParent.append(tabButton)
+    tabReference.button = tabButton
+    
+    // close previous opened tab
+    this.closeTab()
+
+    // save current tab reference
+    this.tabReference[path] = tabReference
+
+    // append tab into DOM
+    editorParent.append(tab)
+
+    // initiate ace editor
+    this.initEditor(tabId, tabReference)
+  },
+
+  getCurrentTab(){
+    if(!this.currentEditor) return;
+
+    const refData = Object.values(this.tabReference)
+    const prevTabReference = refData.filter( tab => tab.editor === this.currentEditor )[0]
+    return prevTabReference
+  }
+
 })
 
 /**
@@ -109,6 +189,10 @@ Object.assign(lolitor.prototype, {
   getExtentionType(item) {
     const type = item.isDirectory ? "folder" : this.getItemExt(item.href);
     return type;
+  },
+
+  lastArrayItem(array){
+    return array[array.length - 1]
   }
 });
 
@@ -119,6 +203,7 @@ Object.assign(lolitor.prototype, {
   setRootListDOM(){
     this.listRoot = document.querySelector(".app-list-wrapper.--root-wrapper");
   },
+
   createList(items) {
     const listItems = [];
     items.forEach(item => {
@@ -128,15 +213,17 @@ Object.assign(lolitor.prototype, {
     const html = `<ul class="app-list-wrapper">${listItems.join("")}</ul>`;
     return html;
   },
+
   createListItem(item) {
     const itemTypeClass = this.getItemTypeClass(item);
     const itemHiddenClass = this.getItemHiddenClass(item);
+    const isDirectory = item.isDirectory
     const title = item.title;
     const href = item.href;
     const iconHtml = this.getIconHtml(item);
     const html = `
-        <li class="app-list-item" data-isOpen="false" data-isFetched="false">
-          <a tabindex="0" data-href="${href}" class="app-list-name file-ex-side-pad ${itemTypeClass} ${itemHiddenClass}">
+        <li class="app-list-item" data-isdirectory="${isDirectory}" data-href="${href}" data-isopen="false">
+          <a tabindex="0" class="app-list-name file-ex-side-pad ${itemTypeClass} ${itemHiddenClass}">
             <span class="app-list-highlight"></span> 
             <div class="app-list-name-content">
               ${iconHtml}
@@ -147,12 +234,15 @@ Object.assign(lolitor.prototype, {
 
     return html.trim();
   },
+
   getItemTypeClass(item) {
     return item.isDirectory ? "--is-folder" : "--is-file";
   },
+
   getItemHiddenClass(item) {
     return item.isHidden ? "--hidden" : "";
   },
+
   getIconHtml(item) {
     const type = this.getExtentionType(item);
     let svg = svgExt[type];
@@ -166,6 +256,15 @@ Object.assign(lolitor.prototype, {
         case "png":
           svg = svgExt.images;
           break;
+        
+        case "ttf":
+        case "otf":
+        case "woff":
+        case "woff2":
+        case "eot":
+          svg = svgExt.fonts;
+          break;
+
         default:
           svg = svgExt.defaulf;
           break;
@@ -174,6 +273,7 @@ Object.assign(lolitor.prototype, {
 
     return `<span class="app-icon-wrapper">${svg}</span>`;
   },
+
   generateListDOM(data){
     const html = this.createList(data)
     const listDOM = document.createElement('div')
@@ -181,26 +281,76 @@ Object.assign(lolitor.prototype, {
 
     return listDOM.querySelector('.app-list-wrapper')
   },
+
   appendList(root, listDOM){
     root.appendChild(listDOM)
     this.addListEvents(listDOM)
   },
+
   prepareList(data, parent){
     const listDOM = this.generateListDOM(data);
     this.appendList(parent, listDOM)
   },
+
   getRootListWrapper(){
     return this.listRoot.querySelector('.app-list-wrapper')
   },
+
   setHighlightMargin(listNameEl, rootWrapper){
     const mt = rootWrapper.scrollTop;
     const hl = listNameEl.querySelector(".app-list-highlight");
     hl.style.marginTop = -mt + "px";
   },
 
-  datasetInit(el){
+  toggleList(el){
+    const list = el.querySelector('.app-list-wrapper')
     const dataset = el.dataset
-    dataset.isOpen = dataset.isOpen === "false" ? true : false;
+    const isOpen = dataset.isopen
+    if(isOpen === Bool.TRUE){
+      list.classList.add('--hide')
+    }else{
+      list.classList.remove('--hide')
+    }
+
+    dataset.isopen = !JSON.parse(isOpen)
+  },
+
+  createTabDOM(filename, tabReference){
+    const _this = this
+    const wrapper = document.createElement('div')
+    const html = `
+    <div class="app-tab-item --active-tab">
+      ${filename}
+      <a tabindex="0" class="app-file-close">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"></path>
+        </svg>
+      </a>
+    </div>`
+
+    wrapper.innerHTML = html
+    const tab = wrapper.querySelector('.app-tab-item')
+    const closeTab = wrapper.querySelector('.app-file-close')
+
+    tab.addEventListener('click', function(){
+      _this.showTab(tabReference)
+    })
+
+    closeTab.addEventListener('click', function(){
+      _this.closeTab(tabReference, true)
+    })
+
+    return tab
+  },
+
+  toggleTab(tabRef, show){
+    if(show) {
+      tabRef.el.classList.remove('--hide')
+      tabRef.button.classList.add('--active-tab')
+    }else{
+      tabRef.el.classList.add('--hide')
+      tabRef.button.classList.remove('--active-tab')
+    }
   }
 });
 
@@ -249,6 +399,27 @@ Object.assign(lolitor.prototype, {
         }
       })
     });
+  },
+
+  showTab(tabRef){
+    // close previous tab if opened
+    this.closeTab()
+    this.toggleTab(tabRef, true)
+    this.currentEditor = tabRef.editor
+  },
+
+  closeTab(tabReference, killTab = false){
+    const tabRef = tabReference || this.getCurrentTab()
+    if(!tabRef) return;
+
+    if(!killTab){
+      this.toggleTab(tabRef, false)
+    }else{
+      tabRef.el.remove()
+      tabRef.button.remove()
+
+      delete this.tabReference[tabRef.path]
+    }
   }
 });
 

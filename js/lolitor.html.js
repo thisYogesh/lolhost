@@ -28,41 +28,8 @@ return `
                    </ul>
                 </aside>
                 <section class="app-file-viewer app-piller">
-                   <div class="app-tab-wrapper app-piller-top">
-                      <div class="app-tab-item --active-tab">
-                         index.html
-                         <a tabindex="0" class="app-file-close">
-                            <svg
-                               width="16"
-                               height="16"
-                               viewBox="0 0 16 16"
-                               fill="currentColor"
-                               xmlns="http://www.w3.org/2000/svg"
-                               >
-                               <path
-                                  d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"
-                                  ></path>
-                            </svg>
-                         </a>
-                      </div>
-                      <div class="app-tab-item">
-                         app.js
-                         <a tabindex="0" class="app-file-close">
-                            <svg
-                               width="16"
-                               height="16"
-                               viewBox="0 0 16 16"
-                               fill="currentColor"
-                               xmlns="http://www.w3.org/2000/svg"
-                               >
-                               <path
-                                  d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"
-                                  ></path>
-                            </svg>
-                         </a>
-                      </div>
-                   </div>
-                   <div id="lol-editor" class=""></div>
+                   <div class="app-tab-wrapper app-piller-top"></div>
+                   <div id="lol-editor"></div>
                 </section>
              </section>
              <footer class="app-footer"></footer>

@@ -94,6 +94,10 @@ body{
   text-shadow: 0px 1px #000;
 }
 
+.app-list-wrapper.--hide {
+  display: none;
+}
+
 .app-list-name > .app-list-highlight {
     position: absolute;
     left: 0;
@@ -209,8 +213,16 @@ body{
 }
 
 #lol-editor{
-    height: calc(100% - var(--app-file-tab-height));
-    border-left: 1px solid var(--color-2);
+  height: calc(100% - var(--app-file-tab-height));
+  border-left: 1px solid var(--color-2);
+}
+
+.lol-editor-tab {
+  height: 100%;
+}
+
+.lol-editor-tab.--hide{
+  display: none
 }
 /* 
 .ace_gutter, .ace_scroller {

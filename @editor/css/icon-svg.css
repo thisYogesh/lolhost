@@ -1,31 +1,31 @@
 .app-icon-wrapper {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: var(--list-item-height);
-    width: 20px;
-    display: inline-block;
-    line-height: var(--list-item-height);
-    text-align: center;
-    margin-left: -19px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: var(--list-item-height);
+  width: 20px;
+  display: inline-block;
+  line-height: var(--list-item-height);
+  text-align: center;
+  margin-left: -19px;
 }
 
 .app-svg {
-    display: inline-block;
-    vertical-align: text-bottom;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    position: absolute;
+  display: inline-block;
+  vertical-align: text-bottom;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  position: absolute;
 }
 
 .--svg-folder {
-    width: 15px;
+  width: 15px;
 }
 
 .--svg-folder-open{
-    width: 20px;
-    height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .--common {
@@ -55,4 +55,34 @@
 
 .--svg-json{
   color: #DBCD68
+}
+
+.--svg-fonts{
+  color: #cc3e44;
+  width: 22px;
+  margin-left: -2px;
+}
+
+.--svg-svg{
+  color: #a074c4;
+  width: 22px;
+}
+
+.--svg-markdown{
+  color: #529BBA
+}
+
+.--svg-npmignore{
+  color: #CD3F45;
+  width: 23px;
+}
+
+.--svg-gitignore{
+  color: #dd4c35;
+  width: 18px;
+}
+
+.--svg-config {
+  width: 21px;
+  color: #41535B
 }
