@@ -15,8 +15,8 @@ module.exports = function({req, res, dirname}, { onFile, onDir, onError, interce
             path: pathInfo.pathWithDir,
             encode: null,
         }, {
-            onFile(err, content){
-                onFile(err, content, pathInfo)
+            onFile(err, content, encoding){
+              onFile(err, content, {...pathInfo, encoding})
             },
 
             onDir(err, list){

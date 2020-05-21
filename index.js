@@ -1,7 +1,6 @@
 const { http, util, fs, main } = require('./js/modules')()
 const lolitor = require('./lolitor')
 const config = util.getConfig();
-// const config = util.getConfig(__dirname, fs);
 const { printBox, color, colorType, effect } = require('./js/print')
 
 function server(port1 = 8000, port2 = 8001){

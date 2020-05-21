@@ -1,4 +1,5 @@
 const svgExt = require('./extIcons');
+const syntax = require('./syntaxMode')
 const Bool = {
   TRUE: "true",
   FALSE: "false"
@@ -48,11 +49,23 @@ Object.assign(lolitor.prototype, {
   openFile(path){
     const tabRef = this.tabReference[path]
     if(tabRef) {
-      this.showTab(tabRef) 
+      this.showTab(tabRef)
       return;
     }
 
-    this.createTab(path)
+    this.getData(path, (err, resp) => {
+      if(!err){
+        const content = resp.data
+        const isSupported = resp.isSupported
+
+        this.setFetchedData(path, content)
+        this.createTab(path)
+        this.setTabData(content)
+        
+        if(isSupported) this.setCodeTheme(this.getItemPathExt(path))
+        else this.setReadOnly(true)
+      }
+    })
   },
 
   fetchDirectory(path, el){
@@ -95,6 +108,13 @@ Object.assign(lolitor.prototype, {
  * Editor
  */
 Object.assign(lolitor.prototype, {
+  setReadOnly(value, editor){
+    (editor || this.currentEditor).setReadOnly(value)
+  },
+
+  setTabData(value, editor){
+    (editor || this.currentEditor).setValue(value, -1)
+  },
   initEditor(selector, tabReference) {
     const editor = ace.edit(selector);
     editor.setOptions({
@@ -112,8 +132,8 @@ Object.assign(lolitor.prototype, {
     (editor || this.currentEditor).setTheme("ace/theme/vs_code");
   },
 
-  setCodeTheme() {
-    (editor || this.currentEditor).session.setMode("ace/mode/html");
+  setCodeTheme(ext, editor) {
+    (editor || this.currentEditor).session.setMode(`ace/mode/${syntax[ext]}`);
   },
 
   createTab(path){
@@ -184,6 +204,11 @@ Object.assign(lolitor.prototype, {
   getItemExt(title) {
     const ext = title.match(/\w+$/);
     return (ext && ext[0]) || "default";
+  },
+
+  getItemPathExt(path){
+    const title = this.lastArrayItem(path.split('/'))
+    return this.getItemExt(title)
   },
 
   getExtentionType(item) {
@@ -336,7 +361,8 @@ Object.assign(lolitor.prototype, {
       _this.showTab(tabReference)
     })
 
-    closeTab.addEventListener('click', function(){
+    closeTab.addEventListener('click', function(e){
+      e.stopPropagation();
       _this.closeTab(tabReference, true)
     })
 

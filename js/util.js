@@ -276,8 +276,8 @@ module.exports = {
         }
     },
 
-    buildResObject(content){
-        return JSON.stringify({ data: content })
+    buildResObject(data, isSupported = true){
+      return JSON.stringify({ data, isSupported })
     },
 
     redirect(res, url){

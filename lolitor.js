@@ -1,5 +1,6 @@
 const { http, main, fs, util } = require('./js/modules')()
 const { Method } = require('./js/enums')
+const unsuportedMsg = "This file has an unsuported text encoding"
 
 function API(port = 8000){
     http.createServer(function(req, res){
@@ -37,12 +38,14 @@ function API(port = 8000){
                     return true
                 }
             },
-            onFile(err, content){
+            onFile(err, content, { encoding }){
                 if(!err){
-                    res.end(util.buildResObject(content))
+                    const isSupported = !encoding.includes('windows-')
+                    const data = isSupported ? content.toString() : unsuportedMsg
+                    res.end(util.buildResObject(data, isSupported))
                 }else{
                     res.writeHead(404);
-                    res.end(util.buildResObject(false))
+                    res.end(util.buildResObject('404', false))
                 }
             },
             onDir(err, list, { currentPath, pathWithDir }){

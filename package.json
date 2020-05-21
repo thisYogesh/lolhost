@@ -4,9 +4,11 @@
   "version": "1.1.1",
   "main": "index.js",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "detect-character-encoding": "^0.8.0"
+  },
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node js/app.js"
   },
   "keywords": [
     "localhost",
