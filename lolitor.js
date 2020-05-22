@@ -40,7 +40,7 @@ function API(port = 8000){
             },
             onFile(err, content, { encoding }){
                 if(!err){
-                    const isSupported = !encoding.includes('windows-')
+                    const isSupported = util.isSupported(encoding)
                     const data = isSupported ? content.toString() : unsuportedMsg
                     res.end(util.buildResObject(data, isSupported))
                 }else{

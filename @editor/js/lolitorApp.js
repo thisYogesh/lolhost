@@ -42,11 +42,11 @@ Object.assign(lolitor.prototype, {
     if(isDirectory === Bool.TRUE){
       this.fetchDirectory(path, el)
     }else{
-      this.openFile(path)
+      this.openFile(path, el)
     }
   },
 
-  openFile(path){
+  openFile(path, el){
     const tabRef = this.tabReference[path]
     if(tabRef) {
       this.showTab(tabRef)
@@ -59,7 +59,7 @@ Object.assign(lolitor.prototype, {
         const isSupported = resp.isSupported
 
         this.setFetchedData(path, content)
-        this.createTab(path)
+        this.createTab(path, el)
         this.setTabData(content)
         
         if(isSupported) this.setCodeTheme(this.getItemPathExt(path))
@@ -109,11 +109,11 @@ Object.assign(lolitor.prototype, {
  */
 Object.assign(lolitor.prototype, {
   setReadOnly(value, editor){
-    (editor || this.currentEditor).setReadOnly(value)
+    (editor || this.currentTab.editor).setReadOnly(value)
   },
 
   setTabData(value, editor){
-    (editor || this.currentEditor).setValue(value, -1)
+    (editor || this.currentTab.editor).setValue(value, -1)
   },
   initEditor(selector, tabReference) {
     const editor = ace.edit(selector);
@@ -124,26 +124,25 @@ Object.assign(lolitor.prototype, {
     editor.session.setUseWorker(false);
 
     tabReference.editor = editor;
-    this.currentEditor = editor;
+    this.currentTab = tabReference;
     this.setTheme();
   },
 
   setTheme(editor) {
-    (editor || this.currentEditor).setTheme("ace/theme/vs_code");
+    (editor || this.currentTab.editor).setTheme("ace/theme/vs_code");
   },
 
   setCodeTheme(ext, editor) {
-    (editor || this.currentEditor).session.setMode(`ace/mode/${syntax[ext]}`);
+    (editor || this.currentTab.editor).session.setMode(`ace/mode/${syntax[ext]}`);
   },
 
-  createTab(path){
-    const editorParent = document.querySelector('#lol-editor')
-    const tabParent = document.querySelector('.app-tab-wrapper')
+  createTab(path, el){
+    const { editorParent, tabParent } = this.getTabElems()
     const filename = this.lastArrayItem(path.split('/'))
 
     // create tab editor area
     const tab = document.createElement('div');
-    const tabReference = { el: tab, path }
+    const tabReference = { el: tab, path, treeItem: el}
     this.tabCount = this.tabCount || 0
     const tabId = `lol-editor-tab-${this.tabCount++}`
     tab.classList.add('lol-editor-tab')
@@ -152,6 +151,7 @@ Object.assign(lolitor.prototype, {
     // create tab button
     const tabButton = this.createTabDOM(filename, tabReference)
     tabParent.append(tabButton)
+    tabParent.classList.add('--has-tabs')
     tabReference.button = tabButton
     
     // close previous opened tab
@@ -165,66 +165,23 @@ Object.assign(lolitor.prototype, {
 
     // initiate ace editor
     this.initEditor(tabId, tabReference)
-  },
-
-  getCurrentTab(){
-    if(!this.currentEditor) return;
-
-    const refData = Object.values(this.tabReference)
-    const prevTabReference = refData.filter( tab => tab.editor === this.currentEditor )[0]
-    return prevTabReference
   }
-
 })
-
-/**
- * Util
- */
-Object.assign(lolitor.prototype, {
-  fetch(url, options = {}) {
-    fetch(url, {
-      method: options.method || "post"
-    })
-    .then(function(resp) {
-      return resp.json().then(function(json) {
-        options.responce && options.responce(json);
-      });
-    })
-    .catch(function(error) {
-      console.log("Error in fetchData");
-      options.error && options.error(error);
-    });
-  }
-});
-
-/**
- * Helpers
- */
-Object.assign(lolitor.prototype, {
-  getItemExt(title) {
-    const ext = title.match(/\w+$/);
-    return (ext && ext[0]) || "default";
-  },
-
-  getItemPathExt(path){
-    const title = this.lastArrayItem(path.split('/'))
-    return this.getItemExt(title)
-  },
-
-  getExtentionType(item) {
-    const type = item.isDirectory ? "folder" : this.getItemExt(item.href);
-    return type;
-  },
-
-  lastArrayItem(array){
-    return array[array.length - 1]
-  }
-});
 
 /**
  * DOM Manipulation
  */
 Object.assign(lolitor.prototype, {
+  getTabElems(){
+    this.editorParent = this.editorParent || document.querySelector('#lol-editor')
+    this.tabParent = this.tabParent || document.querySelector('.app-tab-wrapper')
+
+    return {
+      editorParent: this.editorParent, 
+      tabParent: this.tabParent
+    }
+  },
+
   setRootListDOM(){
     this.listRoot = document.querySelector(".app-list-wrapper.--root-wrapper");
   },
@@ -402,7 +359,7 @@ Object.assign(lolitor.prototype, {
         _this._lastHoveredItem = this
       });
 
-      listNameItem.addEventListener('focus', function(){
+      listNameItem.addEventListener('click', function(){
         const focusedItem = _this._lastFocusedItem
         focusedItem && focusedItem.classList.remove('--active');
         
@@ -431,21 +388,72 @@ Object.assign(lolitor.prototype, {
     // close previous tab if opened
     this.closeTab()
     this.toggleTab(tabRef, true)
-    this.currentEditor = tabRef.editor
+    this.currentTab = tabRef
   },
 
   closeTab(tabReference, killTab = false){
-    const tabRef = tabReference || this.getCurrentTab()
+    const tabRef = tabReference || this.currentTab
     if(!tabRef) return;
 
     if(!killTab){
       this.toggleTab(tabRef, false)
     }else{
+
+
       tabRef.el.remove()
       tabRef.button.remove()
 
       delete this.tabReference[tabRef.path]
+
+      if(!Object.values(this.tabReference).length){
+        const { tabParent } = this.getTabElems()
+        tabParent.classList.remove('--has-tabs')
+      }
     }
+  }
+});
+
+/**
+ * Util
+ */
+Object.assign(lolitor.prototype, {
+  fetch(url, options = {}) {
+    fetch(url, {
+      method: options.method || "post"
+    })
+    .then(function(resp) {
+      return resp.json().then(function(json) {
+        options.responce && options.responce(json);
+      });
+    })
+    .catch(function(error) {
+      console.log("Error in fetchData");
+      options.error && options.error(error);
+    });
+  }
+});
+
+/**
+ * Helpers
+ */
+Object.assign(lolitor.prototype, {
+  getItemExt(title) {
+    const ext = title.match(/\w+$/);
+    return (ext && ext[0]) || "default";
+  },
+
+  getItemPathExt(path){
+    const title = this.lastArrayItem(path.split('/'))
+    return this.getItemExt(title)
+  },
+
+  getExtentionType(item) {
+    const type = item.isDirectory ? "folder" : this.getItemExt(item.href);
+    return type;
+  },
+
+  lastArrayItem(array){
+    return array[array.length - 1]
   }
 });
 

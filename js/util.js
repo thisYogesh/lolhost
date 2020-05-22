@@ -286,10 +286,22 @@ module.exports = {
     },
 
     redirectIfRequired(req, res, cb){
-        if(!/\/$/.test(req.url)){
-            this.redirect(res, `http://${req.headers.host + req.url}/`)
-        }else{
-            cb()
+      if(!/\/$/.test(req.url)){
+        this.redirect(res, `http://${req.headers.host + req.url}/`)
+      }else{
+        cb()
+      }
+    },
+
+    isSupported(encoding){
+      let supported = true
+      const nonSupportedEncodes = ['windows-','UTF-32BE']
+      for(let encode of nonSupportedEncodes){
+        if(encoding.includes(encode)) {
+          supported = false;
+          break
         }
+      }
+      return supported
     }
 }
