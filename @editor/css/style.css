@@ -260,6 +260,19 @@ body {
 .lol-editor-tab.--hide {
   display: none;
 }
+
+.app-status {
+  float: right;
+  margin-right: 25px;
+  line-height: var(--app-bottom-bar-height);
+  font-size: 15px;
+  letter-spacing: 0px;
+  display: flex;
+}
+
+.app-status-item {
+  margin-left: 25px;
+}
 /* 
 .ace_gutter, .ace_scroller {
     padding-top: var(--ace-editor-pt);

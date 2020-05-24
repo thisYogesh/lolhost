@@ -20,9 +20,10 @@ Object.assign(lolitor.prototype, {
     // save all opened tab reference
     this.tabReference= {}
 
-    this.setRootListDOM();
+    this.setRootListDOM()
     this.fetchRoot()
     this.setWindowEvents()
+    this.initStatusBar()
   },
 
   fetchRoot(){
@@ -65,6 +66,10 @@ Object.assign(lolitor.prototype, {
         
         if(isSupported) this.setCodeTheme(this.getItemPathExt(path))
         else this.setReadOnly(true)
+
+        this.updateStatusBar()
+        this.$cursorChange()
+        this.$change()
       }
     })
   },
@@ -86,7 +91,9 @@ Object.assign(lolitor.prototype, {
 
   onSave(){
     console.log('File saved!')
-  }
+  },
+
+  onChange(){}
 });
 
 /**
@@ -121,7 +128,6 @@ Object.assign(lolitor.prototype, {
     (editor || this.currentTab.editor).setValue(value, -1)
   },
   initEditor(selector, tabReference) {
-    tabReference.el.style.opacity = 0
     const editor = ace.edit(selector);
     editor.setOptions({
       fontFamily: "Inconsolata",
@@ -132,7 +138,6 @@ Object.assign(lolitor.prototype, {
     tabReference.editor = editor;
     this.currentTab = tabReference;
     this.setTheme();
-    tabReference.el.style.opacity = 1
   },
 
   setTheme(editor) {
@@ -140,7 +145,8 @@ Object.assign(lolitor.prototype, {
   },
 
   setCodeTheme(ext, editor) {
-    (editor || this.currentTab.editor).session.setMode(`ace/mode/${syntax[ext]}`);
+    const mode = syntax[ext] || 'text';
+    (editor || this.currentTab.editor).session.setMode(`ace/mode/${mode}`);
   },
 
   createTab(path, el){
@@ -212,6 +218,45 @@ Object.assign(lolitor.prototype, {
       this._highlighting = false
     })
     // toggleList
+  },
+
+  getCursorPosition(){
+    return this.currentTab && this.currentTab.editor.getCursorPosition()
+  },
+
+  getTabSize(){
+    return this.currentTab && this.currentTab.editor.session.$tabSize
+  },
+
+  getMode(){
+    const mode = this.currentTab && this.currentTab.editor.session.$modeId
+    return mode && this.lastArrayItem(mode.split('/'))
+  },
+
+  updateStatusBar(){    
+    const tabSize =  this.getTabSize()
+    const mode = this.getMode()
+
+    this._modeInfo.innerHTML = mode.toUpperCase()
+    this._tabInfo.innerHTML = `Tab ${tabSize}`
+    this.updateLineCol()
+  },
+
+  updateLineCol(){
+    const {row, column} = this.getCursorPosition()
+    this._lineInfo.innerHTML = `Ln ${row}, Col ${column}`
+  },
+
+  $change(){
+    this.currentTab.editor.on('change', () => {
+      this.onChange()
+    })
+  },
+
+  $cursorChange(){
+    this.currentTab.editor.on('changeSelection', () => {
+      this.updateLineCol()
+    })
   }
 })
 
@@ -431,6 +476,25 @@ Object.assign(lolitor.prototype, {
     // finally remove it's elements from DOM
     tabRef.el.remove()
     tabRef.button.remove()
+  },
+
+  initStatusBar(){
+    const html = `
+      <ul class="app-status">
+        <li class="app-status-item --line-info"></li>
+        <li class="app-status-item --mode-info"></li>
+        <li class="app-status-item --tab-info"></li>
+      </ul>
+    `
+    const statusBar = document.createElement('div')
+    statusBar.innerHTML = html;
+
+    this._lineInfo = statusBar.querySelector('.--line-info')
+    this._modeInfo = statusBar.querySelector('.--mode-info')
+    this._tabInfo = statusBar.querySelector('.--tab-info')
+
+    const footerEl = document.querySelector('.app-footer')
+    footerEl.append(statusBar.querySelector('.app-status'))
   }
 });
 
@@ -489,9 +553,9 @@ Object.assign(lolitor.prototype, {
     // close previous tab if opened
     this.closeTab()
     this.toggleTab(tabRef, true)
-    this.currentTab = tabRef
-
     this.highlightInTree(tabRef.treeItem, true);
+    this.currentTab = tabRef
+    this.updateStatusBar()
   },
 
   closeTab(tabReference, killTab = false){
