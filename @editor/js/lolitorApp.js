@@ -22,6 +22,7 @@ Object.assign(lolitor.prototype, {
 
     this.setRootListDOM();
     this.fetchRoot()
+    this.setWindowEvents()
   },
 
   fetchRoot(){
@@ -75,12 +76,16 @@ Object.assign(lolitor.prototype, {
       path && this.getData(path, (err, resp) => {
         if(!err){
           this.prepareList(resp.data, el)
-          this.toggleList(el)
+          this.toggleList(el, true)
         }
       })
     }else{
-      this.toggleList(el)
+      this.toggleList(el, true)
     }
+  },
+
+  onSave(){
+    console.log('File saved!')
   }
 });
 
@@ -116,16 +121,18 @@ Object.assign(lolitor.prototype, {
     (editor || this.currentTab.editor).setValue(value, -1)
   },
   initEditor(selector, tabReference) {
+    tabReference.el.style.opacity = 0
     const editor = ace.edit(selector);
     editor.setOptions({
       fontFamily: "Inconsolata",
-      fontSize: "16px"
+      fontSize: "17px"
     });
     editor.session.setUseWorker(false);
 
     tabReference.editor = editor;
     this.currentTab = tabReference;
     this.setTheme();
+    tabReference.el.style.opacity = 1
   },
 
   setTheme(editor) {
@@ -165,6 +172,46 @@ Object.assign(lolitor.prototype, {
 
     // initiate ace editor
     this.initEditor(tabId, tabReference)
+  },
+
+  /** 
+   * Highlight tree item mannualy by overtaking scroll event
+  */
+  highlightInTree(treeItem, openTillRoot = false){
+    // if folders are close then open them to highlight path
+    openTillRoot && this.openPathFolders(treeItem)
+
+    this._highlighting = true
+    const treeItemName = treeItem.querySelector('.app-list-name')
+    const rootListWrapper = this.getRootListWrapper()
+
+    this._lastFocusedItem.classList.remove('--active');
+    this._lastFocusedItem = treeItemName
+
+    treeItemName.focus()
+    treeItemName.classList.add('--active')
+
+    this.setHighlightMargin(treeItemName, rootListWrapper)
+  },
+
+  openPathFolders(treeItem){
+    const dataset = treeItem.dataset
+    const path = dataset.href.split('/')
+
+    // Remove first and last item
+    path.pop();
+    path.shift();
+
+    let _treeItem = treeItem
+    path.forEach(() => {
+      _treeItem = _treeItem.parentNode.parentNode
+
+      // open folders if closed
+      this._highlighting = true
+      this.toggleList(_treeItem, false, true)
+      this._highlighting = false
+    })
+    // toggleList
   }
 })
 
@@ -269,7 +316,19 @@ Object.assign(lolitor.prototype, {
     this.addListEvents(listDOM)
   },
 
+  arrengeFoldersFirst(list){
+    let lfi = 0
+    list.forEach((item, i) => {
+      if(item.isDirectory && lfi !== i){
+        const dir = list.splice(i, 1)[0]
+        list.splice(lfi, 0, dir)
+        lfi++
+      }
+    })
+  },
+
   prepareList(data, parent){
+    this.arrengeFoldersFirst(data)
     const listDOM = this.generateListDOM(data);
     this.appendList(parent, listDOM)
   },
@@ -284,9 +343,13 @@ Object.assign(lolitor.prototype, {
     hl.style.marginTop = -mt + "px";
   },
 
-  toggleList(el){
+  toggleList(el, doHighlight = false, forceState){
     const list = el.querySelector('.app-list-wrapper')
     const dataset = el.dataset
+
+    // to forcefully apply toggle state
+    if(forceState !== undefined) dataset.isopen = !forceState
+
     const isOpen = dataset.isopen
     if(isOpen === Bool.TRUE){
       list.classList.add('--hide')
@@ -295,6 +358,7 @@ Object.assign(lolitor.prototype, {
     }
 
     dataset.isopen = !JSON.parse(isOpen)
+    doHighlight && this.highlightInTree(el)
   },
 
   createTabDOM(filename, tabReference){
@@ -334,6 +398,39 @@ Object.assign(lolitor.prototype, {
       tabRef.el.classList.add('--hide')
       tabRef.button.classList.remove('--active-tab')
     }
+  },
+
+  showAlternativeTab(tabButton){
+    const altTabButton = tabButton.previousElementSibling || tabButton.nextElementSibling
+    if(!altTabButton) return;
+
+    const tabRef = this.getTabRefByTabButton(altTabButton)
+    const treeItem = tabRef.treeItem;
+    treeItem && this.fetchItem(treeItem)
+  },
+
+  getTabRefByTabButton(tabButton){
+    return Object.values(this.tabReference).filter( tabRef => tabRef.button === tabButton )[0]
+  },
+
+  killTab(tabRef){
+    // remove tab reference 
+    delete this.tabReference[tabRef.path]
+
+    // if all tabs are closed
+    if(!Object.values(this.tabReference).length){
+      const { tabParent } = this.getTabElems()
+      tabParent.classList.remove('--has-tabs')
+      this.currentTab = null
+    }
+    // show previous or next tab on tab remove
+    else if(tabRef === this.currentTab) {
+      this.showAlternativeTab(tabRef.button)
+    }
+    
+    // finally remove it's elements from DOM
+    tabRef.el.remove()
+    tabRef.button.remove()
   }
 });
 
@@ -374,6 +471,10 @@ Object.assign(lolitor.prototype, {
     const rootListWrapper = this.getRootListWrapper()
     rootListWrapper.addEventListener("scroll", function() {
       window.requestAnimationFrame(function(){
+        if(_this._highlighting){
+          _this._highlighting = false;
+          return;
+        }
         const focusedItem = _this._lastFocusedItem
         if(_this._lastHoveredItem) _this.setHighlightMargin(_this._lastHoveredItem, rootListWrapper)
         if(focusedItem){
@@ -389,6 +490,8 @@ Object.assign(lolitor.prototype, {
     this.closeTab()
     this.toggleTab(tabRef, true)
     this.currentTab = tabRef
+
+    this.highlightInTree(tabRef.treeItem, true);
   },
 
   closeTab(tabReference, killTab = false){
@@ -398,18 +501,22 @@ Object.assign(lolitor.prototype, {
     if(!killTab){
       this.toggleTab(tabRef, false)
     }else{
-
-
-      tabRef.el.remove()
-      tabRef.button.remove()
-
-      delete this.tabReference[tabRef.path]
-
-      if(!Object.values(this.tabReference).length){
-        const { tabParent } = this.getTabElems()
-        tabParent.classList.remove('--has-tabs')
-      }
+      this.killTab(tabRef);
     }
+  },
+
+  setWindowEvents(){
+    const _this = this
+    window.addEventListener('keydown', function(e){
+      if( (e.ctrlKey || e.metaKey) && e.keyCode === 83 ){
+        _this.onSave()
+        e.preventDefault()
+      }
+    })
+
+    window.addEventListener('beforeunload', function(e){
+      e.returnValue = 'Are you want to close editor?';
+    })
   }
 });
 
@@ -427,7 +534,7 @@ Object.assign(lolitor.prototype, {
       });
     })
     .catch(function(error) {
-      console.log("Error in fetchData");
+      console.log("Error in fetchData", error);
       options.error && options.error(error);
     });
   }
@@ -448,8 +555,22 @@ Object.assign(lolitor.prototype, {
   },
 
   getExtentionType(item) {
-    const type = item.isDirectory ? "folder" : this.getItemExt(item.href);
+    const type = this.getSpecialExtType(item) || this.getItemExt(item.title);
     return type;
+  },
+
+  getSpecialExtType(item){
+    let type = ''
+
+    if(item.isDirectory){
+      type = 'folder'
+    }else if(item.title === 'yarn.lock'){
+      type = 'yarn'
+    }else if(item.title === 'webpack.config.js'){
+      type = 'webpack'
+    }
+
+    return type
   },
 
   lastArrayItem(array){

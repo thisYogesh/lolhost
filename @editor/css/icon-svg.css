@@ -86,3 +86,16 @@
   width: 21px;
   color: #41535B
 }
+
+.--svg-yarn {
+  color: #519aba;
+}
+
+.--svg-webpack {
+  color: #519aba;
+  width: 22px;
+}
+
+.--svg-vue {
+  width: 15px;
+}

@@ -46,7 +46,7 @@ color: #4b4e55;\
 .ace-vs-code .ace_storage,\
 .ace-vs-code .ace_storage.ace_type,\
 .ace-vs-code .ace_support.ace_type {\
-color: #b294bb;\
+color: #569cd6;\
 }\
 .ace-vs-code .ace_keyword.ace_operator {\
 color: #8abeb7;\
@@ -77,7 +77,7 @@ border-color: #c5c8c6;\
 .ace-vs-code .ace_entity.ace_name.ace_function,\
 .ace-vs-code .ace_support.ace_function,\
 .ace-vs-code .ace_variable {\
-color: #81a2be;\
+color: #dcdcaa;\
 }\
 .ace-vs-code .ace_support.ace_class,\
 .ace-vs-code .ace_support.ace_type {\
@@ -86,7 +86,7 @@ color: #f0c674;\
 .ace-vs-code .ace_heading,\
 .ace-vs-code .ace_markup.ace_heading,\
 .ace-vs-code .ace_string {\
-color: #fff;\
+color: #ce9178;\
 }\
 .ace-vs-code .ace_entity.ace_name.ace_tag,\
 .ace-vs-code .ace_meta.ace_tag,\

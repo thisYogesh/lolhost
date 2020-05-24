@@ -9,7 +9,7 @@ return `
           <link href="@app/lolitor/main.css" rel="stylesheet">
        </head>
        <body>
-          <main class="main-wrapper">
+          <main id="lolitore" class="main-wrapper">
              <header class="app-header">
                 index.html <a class="emb-spiral">~</a><a class="emb-heart">&#10084;</a
                    ><a class="emb-spiral --twist">~</a> Lolhost

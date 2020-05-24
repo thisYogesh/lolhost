@@ -9,10 +9,10 @@
     --color-8: #37373d;
     --color-9: #2f2f2f;
 
-    --app-top-bar-height: 20px;
-    --list-item-height: 25px;
+    --app-top-bar-height: 25px;
+    --list-item-height: 28px;
     --app-bottom-bar-height: 25px;
-    --app-file-tab-height: 40px;
+    --app-file-tab-height: 43px;
     --list-descendant-ml: 20px;
     --list-name-plr: 20px;
     --ace-editor-pt: 10px;
