@@ -1,3 +1,6 @@
+/**
+ * @author Yogesh Jagdale
+ */
 const { http, util, fs, main } = require('./js/modules')()
 const lolitor = require('./lolitor')
 const config = util.getConfig();

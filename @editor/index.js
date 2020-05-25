@@ -1,3 +1,3 @@
 import "./css/style.css";
-import lolitorApp from "./js/lolitorApp";
-window.app = new lolitorApp()
+import app from "./js/app";
+window.app = new app()
