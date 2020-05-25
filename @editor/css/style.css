@@ -279,6 +279,58 @@ body {
   background-color: #ffffff42;
   cursor: default;
 }
+
+.app-image-tab {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(135deg, transparent 25%, #000 0, #000 50%, transparent 50%, transparent 75%, #000 0), linear-gradient(45deg, #000 25%, transparent 0, transparent 50%, #000 50%, #000 75%, transparent 0);
+  background-size: 15px 15px;
+}
+
+.app-image-tab > img {
+  transform: translateX(-50%) translateY(-50%);
+  position: relative;
+  left: 50%;
+  top: 50%;
+}
+
+.app-tab-nos {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.__msg-wrapper {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.__msg {
+  text-transform: uppercase;
+  display: inline-block;
+  position: relative;
+  top: 0;
+  font-weight: 800;
+  font-size: 18px;
+  text-shadow: 1px 1px 0px #000000;
+  color: #717171;
+  letter-spacing: 0px;
+}
+
+.__msg:before {
+  content: '!';
+  font-size: 13em;
+  font-weight: 300;
+  display: inline-block;
+  position: absolute;
+  bottom: -42px;
+  left: -72px;
+}
+
+
 /* 
 .ace_gutter, .ace_scroller {
     padding-top: var(--ace-editor-pt);

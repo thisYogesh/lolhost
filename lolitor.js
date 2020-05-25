@@ -1,6 +1,7 @@
 const { http, main, fs, util } = require("./js/modules")();
 const { Method } = require("./js/enums");
 const unsuportedMsg = "This file has an unsuported text encoding";
+const indexHtml = require("./js/lolitor.html.js");
 
 function API(port = 8000) {
   http
@@ -30,7 +31,6 @@ function API(port = 8000) {
                 util.redirect(res, `http://${req.headers.host}/`);
                 return;
               } else {
-                const indexHtml = require("./js/lolitor.html.js");
                 const pathSplit = pathWithDir.split(/\/|\\/);
                 const rootFolderName = pathSplit[pathSplit.length - 1];
                 const html = indexHtml(rootFolderName);
@@ -54,11 +54,20 @@ function API(port = 8000) {
             })
           },
 
-          onFile(err, content, { encoding }) {
+          onFile(err, content, { encoding, currentPath }) {
             if (!err) {
-              const isSupported = util.isSupported(encoding);
-              const data = isSupported ? content.toString() : unsuportedMsg;
-              res.end(util.buildResObject(data, isSupported));
+              const contentType = util.getContentType(currentPath)
+              const isImage = util.isImageType(contentType)
+              let isSupported, data;
+              if(!isImage){
+                isSupported = util.isSupported(encoding);
+                data = isSupported ? content.toString() : unsuportedMsg;
+              }else{
+                data = `data:${contentType};base64,${content.toString('base64')}`;
+                isSupported = true;
+              }
+              
+              res.end(util.buildResObject(data, isSupported, isImage));
             } else {
               res.writeHead(404);
               res.end(util.buildResObject("404", false));

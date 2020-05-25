@@ -5,6 +5,10 @@ const Bool = {
   TRUE: "true",
   FALSE: "false"
 }
+const template = {
+  ImageTemplate: 0,
+  FileUnsupportTemplate: 1
+}
 
 function lolitor() {
   this.initApp();
@@ -58,19 +62,33 @@ Object.assign(lolitor.prototype, {
 
     this.getData(path, (err, resp) => {
       if(!err){
-        const content = resp.data
-        const isSupported = resp.isSupported
+        const { data, isImage, isSupported } = resp
 
-        this.setFetchedData(path, content)
-        this.createTab(path, el)
-        this.setTabData(content)
-        
-        if(isSupported) this.setCodeTheme(this.getItemPathExt(path))
-        else this.setReadOnly(true)
+        this.setFetchedData(path, data)
+        const {tabId, tabReference} = this.createTab(path, el)
 
-        this.updateStatusBar()
-        this.$cursorChange()
-        this.$change()
+        if(isImage){
+          this.setTabData({
+            value: data,
+            template: template.ImageTemplate
+          })
+        } else if(!isSupported) {
+          this.setTabData({
+            value: data,
+            template: template.FileUnsupportTemplate
+          })
+        } else {
+          // initiate ace editor
+          this.initEditor(tabId, tabReference)
+          this.setTabData({value: data})
+          
+          this.setCodeTheme(this.getItemPathExt(path))
+          // else this.setReadOnly(true)
+
+          this.updateStatusBar()
+          this.$cursorChange()
+          this.$change()
+        }
       }
     })
   },
@@ -92,14 +110,19 @@ Object.assign(lolitor.prototype, {
 
   onSave(){
     const currentTab = this.currentTab
+    if(!currentTab) return;
+
     const content = currentTab.editor.getValue()
     this.fetch(currentTab.path, {
       method: Method.PUT,
       body: content,
 
       responce(resp){
-        console.log(resp)
-        console.log('File saved!')
+        if(resp.updated){
+          console.log('File saved!')
+        }else{
+          console.log('Unable to save file!')
+        }
       },
       error(){
 
@@ -139,8 +162,9 @@ Object.assign(lolitor.prototype, {
     (editor || this.currentTab.editor).setReadOnly(value)
   },
 
-  setTabData(value, editor){
-    (editor || this.currentTab.editor).setValue(value, -1)
+  setTabData({value, editor, template}){
+    if(template === undefined) (editor || this.currentTab.editor).setValue(value, -1)
+    else this.setTemplate(value, template)
   },
   initEditor(selector, tabReference) {
     const editor = ace.edit(selector);
@@ -151,7 +175,6 @@ Object.assign(lolitor.prototype, {
     editor.session.setUseWorker(false);
 
     tabReference.editor = editor;
-    this.currentTab = tabReference;
     this.setTheme();
   },
 
@@ -190,9 +213,12 @@ Object.assign(lolitor.prototype, {
 
     // append tab into DOM
     editorParent.append(tab)
+    this.currentTab = tabReference;
 
-    // initiate ace editor
-    this.initEditor(tabId, tabReference)
+    return {
+      tabId, 
+      tabReference
+    }
   },
 
   /** 
@@ -278,6 +304,43 @@ Object.assign(lolitor.prototype, {
         this.updateLineCol()
       })
     })
+  }
+})
+
+/**
+ * Build template
+ */
+
+Object.assign(lolitor.prototype, {
+  getTemplate(templ){
+    let templateFn
+    switch(templ){
+      case template.ImageTemplate:
+        templateFn = function(src){
+          return `<figure class="app-image-tab"><img src="${src}"/></figure>`
+        }
+        break;
+      
+      case template.FileUnsupportTemplate:
+        templateFn = function(message){
+          return `
+            <artical class="app-tab-nos">
+              <div class="__msg-wrapper">
+                <span class="__msg">This file has an unsuported text encoding...</span>
+              </div>
+            </artical>`
+        }
+        break;
+    }
+
+    return templateFn
+  },
+
+  setTemplate(value, template, tabEl){
+    const tabElm = tabEl || this.currentTab.el
+    const templateFn = this.getTemplate(template)
+    const html = templateFn(value)
+    tabElm.innerHTML = html
   }
 })
 
@@ -594,8 +657,8 @@ Object.assign(lolitor.prototype, {
     const _this = this
     window.addEventListener('keydown', function(e){
       if( (e.ctrlKey || e.metaKey) && e.keyCode === 83 ){
-        _this.onSave()
         e.preventDefault()
+        _this.onSave()
       }
     })
 

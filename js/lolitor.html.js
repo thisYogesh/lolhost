@@ -3,7 +3,9 @@ return `
     <!DOCTYPE html>
     <html>
        <head>
-          <title>&#10084; Lolhost editor</title>
+          <!--&#10084;-->
+          <title>Lolhost editor</title>
+          <link href="@app/images/lol.png" rel="icon">
           <script src="@app/lolitor/build/src/ace.js"></script>
           <link href="@app/css/font.lolitor.css" rel="stylesheet">
           <link href="@app/lolitor/main.css" rel="stylesheet">

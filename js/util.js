@@ -276,8 +276,8 @@ module.exports = {
         }
     },
 
-    buildResObject(data, isSupported = true){
-      return JSON.stringify({ data, isSupported })
+    buildResObject(data, isSupported = true, isImage = false){
+      return JSON.stringify({ data, isSupported, isImage })
     },
 
     redirect(res, url){
