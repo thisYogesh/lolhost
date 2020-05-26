@@ -1,6 +1,7 @@
 @import "./vars.css";
 @import "./icon-svg.css";
 @import "./reset.css";
+@import "./popup.css";
 
 body {
   font-family: Inconsolata;
@@ -404,4 +405,20 @@ body {
 
 .--show-inline-block {
   display: block
+}
+
+.app-file-close.--not-saved:after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #797979;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.app-file-close.--not-saved svg {
+  opacity: 0;
 }

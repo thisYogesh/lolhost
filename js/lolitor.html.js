@@ -44,6 +44,21 @@ return `
              </section>
              <footer class="app-footer"></footer>
           </main>
+          <section class="app-popup --hide">
+            <div class="app-popup-box">
+              <div class="app-popup-box-head">
+                <a tabindex="0" class="app-popup-box-close">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.428 8L12 10.573 10.572 12 8 9.428 5.428 12 4 10.573 6.572 8 4 5.428 5.427 4 8 6.572 10.573 4 12 5.428 9.428 8z"></path>
+                  </svg>
+                </a>
+              </div>
+              <div class="app-popup-box-content">Do you want to save the changes?</div>
+              <div class="app-popup-box-foot">
+                <button class="--dont-btn">Don't Save</button><button class="--save-btn">Save</button>
+              </div>
+            </div>
+          </section>
           <script src="@app/lolitor/main.bundle.js"></script>
        </body>
     </html>

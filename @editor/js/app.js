@@ -127,7 +127,8 @@ Object.assign(lolitor.prototype, {
 
       responce(resp){
         if(resp.update){
-          console.log('File saved!')
+          _this._unsaved = false
+          _this.handleSaveStatus()
         }else{
           _this.throwAppError("This file can't be overwritten! File Access not allowed.")
         }
@@ -139,7 +140,18 @@ Object.assign(lolitor.prototype, {
     
   },
 
-  onChange(){},
+  onChange(){
+    if(!this._unsaved){
+      this._unsaved = true
+      this.handleSaveStatus()
+    }
+  },
+
+  handleSaveStatus(){
+    const closeButton = this.currentTab.button.querySelector('.app-file-close')
+    if(this._unsaved) closeButton.classList.add("--not-saved")
+    else closeButton.classList.remove("--not-saved")
+  },
 
   throwAppError(message){
     clearTimeout(this.__errorTimeId)
@@ -332,7 +344,6 @@ Object.assign(lolitor.prototype, {
       }
       return;
     }
-    console.log('hi')
     this._appFooterStatus.classList.add('--hide')
   },
 
@@ -439,6 +450,7 @@ Object.assign(lolitor.prototype, {
     this.initStatusBar();
     this._appFilename = document.querySelector('.app-header-filename')
     this._appFooterStatus = document.querySelector('.app-status')
+    this._confirmationBox = document.querySelector('.app-popup')
   },
 
   createList(items) {
@@ -775,6 +787,70 @@ Object.assign(lolitor.prototype, {
     window.requestAnimationFrame(cb)
   }
 });
+
+/**
+ * Confirmation box
+ */
+
+Object.assign(lolitor.prototype, {
+  togglConfirmBox(state){
+    const cbox = this._confirmationBox
+    const popupBox = cbox.querySelector('.app-popup-box')
+    
+    if(state){
+      cbox.classList.remove('--hide');
+      popupBox.classList.remove('--bump-out')
+      popupBox.classList.add('--bump-in')
+    }else{
+      popupBox.classList.add('--bump-out')
+      popupBox.classList.remove('--bump-in')
+      setTimeout(() => {
+        cbox.classList.add('--hide');
+      }, 500);
+    }
+  },
+
+  addConfirmBoxEvents({ onConfirm, onDiscard, onAbort }){
+    if(this._initConfBox) return;
+
+    this.$cbConfig = { onConfirm, onDiscard, onAbort }
+    this._initConfBox = true;
+    const confirmBtn = cbox.querySelector('.--save-btn')
+    const discardBtn = cbox.querySelector('.--dont-btn')
+    const abortBtn = cbox.querySelector('.app-popup-box-close')
+    const _this = this
+    
+    confirmBtn.addEventListener('click', function(){
+      const { onConfirm } = _this.$cbConfig
+      cboxEvents(onConfirm)
+    })
+
+    discardBtn.addEventListener('click', function(){
+      const { onDiscard } = _this.$cbConfig
+      cboxEvents(onDiscard)
+    })
+
+    abortBtn.addEventListener('click', function(){
+      const { onAbort } = _this.$cbConfig
+      cboxEvents(onAbort)
+    })
+
+    function cboxEvents(fn){
+      fn && fn()
+      _this.togglConfirmBox(false)
+    }
+  },
+
+  confirm({ message, onConfirm, onDiscard, onAbort }){
+    this.addConfirmBoxEvents({ onConfirm, onDiscard, onAbort })
+    
+    const cbox = this._confirmationBox
+    const contentBox = cbox.querySelector('.app-popup-box-content')
+    contentBox.innerHTML = message
+
+    this.togglConfirmBox(true)
+  }
+})
 
 /**
  * Helpers

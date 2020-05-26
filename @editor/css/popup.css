@@ -1,0 +1,115 @@
+.app-popup {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff3d;
+  z-index: 4;
+}
+
+.app-popup-box {
+  margin: 0 auto;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 400px;
+  height: 200px;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+  border: 1px solid #484848;
+  color: #000;
+  box-shadow: 0 0 6px #0000005c;
+  transition: transform .15s ease;
+}
+
+.app-popup-box-content {
+  text-align: center;
+  position: relative;
+  top: 40%;
+  transform: translateY(-40%);
+  padding: 0 20px;
+}
+
+.app-popup-box-foot > button {
+  font-family: Inconsolata;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #fff;
+  min-width: 70px;
+  text-transform: uppercase;
+  margin: 0px 12px;
+  padding: 7px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.app-popup-box-foot {
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  bottom: 22px;
+  left: 0;
+}
+
+.--save-btn {
+  background-color: var(--color-4);
+  color: #fff;
+}
+
+.--dont-btn {
+  background-color: #ea4b35;
+  color: #fff;
+}
+
+.app-popup-box-close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 6px 8px;
+  color: #000;
+  cursor: pointer;
+}
+
+.app-popup-box-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.app-popup-box.--bump-in {
+  animation: popin .3s;
+  transform: translateY(-50%) scale(1);
+}
+
+.app-popup-box.--bump-out {
+  animation: popout .3s;
+  transform: translateY(-50%) scale(0);
+}
+
+@keyframes popin {
+  0% {
+      transform: translateY(-50%) scale(0);
+  }
+
+  50% {
+      transform: translateY(-50%) scale(1.1);
+  }
+
+  100% {
+      transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes popout{
+  0%{
+      transform: translateY(-50%) scale(1);
+  }
+
+  50%{
+      transform: translateY(-50%) scale(1.1);
+  }
+
+  100%{
+      transform: translateY(-50%) scale(0);
+  }
+}
