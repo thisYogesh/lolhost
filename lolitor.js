@@ -50,6 +50,7 @@ function API(port = 8000) {
                 return;
               }
 
+              // coule be "permission access" issue
               res.end(JSON.stringify({ update: false }))
             })
           },

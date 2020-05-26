@@ -25,16 +25,17 @@ Object.assign(lolitor.prototype, {
     // save all opened tab reference
     this.tabReference= {}
 
-    this.setRootListDOM()
+    // save some usefull elements reference in context
+    this.initAppDomRef()
+    
     this.fetchRoot()
     this.setWindowEvents()
-    this.initStatusBar()
   },
 
   fetchRoot(){
     this.getData('/', (err, resp)=>{
       if(!err){
-        const rootItem = this.listRoot.querySelector('.app-list-item')
+        const rootItem = this._listRoot.querySelector('.app-list-item')
         this.prepareList(resp.data, rootItem)
         this.addRootScrollEvent();
       }
@@ -70,25 +71,31 @@ Object.assign(lolitor.prototype, {
         if(isImage){
           this.setTabData({
             value: data,
-            template: template.ImageTemplate
+            template: template.ImageTemplate,
+            tabRef: tabReference
           })
         } else if(!isSupported) {
           this.setTabData({
             value: data,
-            template: template.FileUnsupportTemplate
+            template: template.FileUnsupportTemplate,
+            tabRef: tabReference
           })
         } else {
           // initiate ace editor
           this.initEditor(tabId, tabReference)
-          this.setTabData({value: data})
+          this.setTabData({value: data, tabRef: tabReference})
           
           this.setCodeTheme(this.getItemPathExt(path))
           // else this.setReadOnly(true)
 
-          this.updateStatusBar()
           this.$cursorChange()
           this.$change()
         }
+        
+        /**
+         * Update app header and footer
+         */
+        this.updateBars()
       }
     })
   },
@@ -109,19 +116,20 @@ Object.assign(lolitor.prototype, {
   },
 
   onSave(){
-    const currentTab = this.currentTab
+    const _this = this
+    const currentTab = _this.currentTab
     if(!currentTab) return;
 
     const content = currentTab.editor.getValue()
-    this.fetch(currentTab.path, {
+    _this.fetch(currentTab.path, {
       method: Method.PUT,
       body: content,
 
       responce(resp){
-        if(resp.updated){
+        if(resp.update){
           console.log('File saved!')
         }else{
-          console.log('Unable to save file!')
+          _this.throwAppError("This file can't be overwritten! File Access not allowed.")
         }
       },
       error(){
@@ -131,7 +139,29 @@ Object.assign(lolitor.prototype, {
     
   },
 
-  onChange(){}
+  onChange(){},
+
+  throwAppError(message){
+    clearTimeout(this.__errorTimeId)
+    const appErrorEl = document.querySelector('.app-error-msg')
+    const errorCopy = appErrorEl.querySelector('.error-copy')
+    if(!this._inAppError){
+      errorCopy.innerHTML = message
+      appErrorEl.classList.add('--show')
+    }else{
+      const errorCopyClone = errorCopy.cloneNode(true)
+      errorCopyClone.classList.add('--highlight-error')
+      errorCopy.parentElement.replaceChild(errorCopyClone, errorCopy)
+    }
+
+    this.__errorTimeId = setTimeout(() => {
+      errorCopy.innerHTML = ''
+      appErrorEl.classList.remove('--show')
+      this._inAppError = false
+    }, 3000)
+
+    this._inAppError = true
+  }
 });
 
 /**
@@ -162,9 +192,12 @@ Object.assign(lolitor.prototype, {
     (editor || this.currentTab.editor).setReadOnly(value)
   },
 
-  setTabData({value, editor, template}){
-    if(template === undefined) (editor || this.currentTab.editor).setValue(value, -1)
+  setTabData({value, editor, template = -1, tabRef}){
+    if(template === -1) (editor || tabRef.editor).setValue(value, -1)
     else this.setTemplate(value, template)
+
+    // setting up template type
+    tabRef.template = template;
   },
   initEditor(selector, tabReference) {
     const editor = ace.edit(selector);
@@ -193,7 +226,7 @@ Object.assign(lolitor.prototype, {
 
     // create tab editor area
     const tab = document.createElement('div');
-    const tabReference = { el: tab, path, treeItem: el}
+    const tabReference = { el: tab, path, treeItem: el, template: -1 }
     this.tabCount = this.tabCount || 0
     const tabId = `lol-editor-tab-${this.tabCount++}`
     tab.classList.add('lol-editor-tab')
@@ -274,17 +307,60 @@ Object.assign(lolitor.prototype, {
     return mode && this.lastArrayItem(mode.split('/'))
   },
 
-  updateStatusBar(){    
-    const tabSize =  this.getTabSize()
-    const mode = this.getMode().toUpperCase()
-  
-    this._modeInfo.innerHTML = {
-      JAVASCRIPT: 'JavaScript',
-      CSS: 'CSS',
-      TEXT: 'Plain Text'
-    }[mode] || mode
-    this._tabInfo.innerHTML = `Tab: ${tabSize}s`
-    this.updateLineCol()
+  updateStatusBar(){
+    if(this.currentTab){
+      this._appFooterStatus.classList.remove('--hide')
+      if(this.currentTab.template === -1){
+        const tabSize =  this.getTabSize()
+        const mode = this.getMode().toUpperCase()
+      
+        this._modeInfo.innerHTML = {
+          JAVASCRIPT: 'JavaScript',
+          CSS: 'CSS',
+          TEXT: 'Plain Text'
+        }[mode] || mode
+        this._tabInfo.innerHTML = `Tab: ${tabSize}s`
+        this.updateLineCol()
+        this._imgSize.innerHTML = ''
+      }else if(this.currentTab.template === template.ImageTemplate){
+        this._modeInfo.innerHTML = ''
+        this._tabInfo.innerHTML = ''
+        this._lineInfo.innerHTML = ''
+        this.showImageResolution()
+      }else {
+        this._appFooterStatus.classList.add('--hide')
+      }
+      return;
+    }
+    console.log('hi')
+    this._appFooterStatus.classList.add('--hide')
+  },
+
+  showImageResolution(){
+    const _this = this;
+    const img = _this.currentTab.el.querySelector('img')
+    const updateInfo = function(){
+      _this._imgSize.innerHTML = `${this.naturalHeight} x ${this.naturalWidth}`
+    }
+    img.onload = function(){
+      updateInfo.apply(this)
+    }
+    updateInfo.apply(img)
+  },
+
+  updateHeaderBar(){
+    if(this.currentTab){
+      const path = this.currentTab.path
+      this._appFilename.innerHTML = this.lastArrayItem(path.split('/'))
+      return;
+    }
+
+    this._appFilename.innerHTML = ''
+  },
+
+  updateBars(){
+    this.updateHeaderBar()
+    this.updateStatusBar()
   },
 
   updateLineCol(){
@@ -358,8 +434,11 @@ Object.assign(lolitor.prototype, {
     }
   },
 
-  setRootListDOM(){
-    this.listRoot = document.querySelector(".app-list-wrapper.--root-wrapper");
+  initAppDomRef(){
+    this._listRoot = document.querySelector(".app-list-wrapper.--root-wrapper");
+    this.initStatusBar();
+    this._appFilename = document.querySelector('.app-header-filename')
+    this._appFooterStatus = document.querySelector('.app-status')
   },
 
   createList(items) {
@@ -463,7 +542,7 @@ Object.assign(lolitor.prototype, {
   },
 
   getRootListWrapper(){
-    return this.listRoot.querySelector('.app-list-wrapper')
+    return this._listRoot.querySelector('.app-list-wrapper')
   },
 
   setHighlightMargin(listNameEl, rootWrapper){
@@ -568,6 +647,7 @@ Object.assign(lolitor.prototype, {
         <li class="app-status-item --line-info"></li>
         <li class="app-status-item --mode-info"></li>
         <li class="app-status-item --tab-info"></li>
+        <li class="app-status-item --img-size"></li>
       </ul>
     `
     const statusBar = document.createElement('div')
@@ -576,6 +656,7 @@ Object.assign(lolitor.prototype, {
     this._lineInfo = statusBar.querySelector('.--line-info')
     this._modeInfo = statusBar.querySelector('.--mode-info')
     this._tabInfo = statusBar.querySelector('.--tab-info')
+    this._imgSize = statusBar.querySelector('.--img-size')
 
     const footerEl = document.querySelector('.app-footer')
     footerEl.append(statusBar.querySelector('.app-status'))
@@ -639,7 +720,7 @@ Object.assign(lolitor.prototype, {
     this.toggleTab(tabRef, true)
     this.highlightInTree(tabRef.treeItem, true);
     this.currentTab = tabRef
-    this.updateStatusBar()
+    this.updateBars()
   },
 
   closeTab(tabReference, killTab = false){
@@ -651,6 +732,8 @@ Object.assign(lolitor.prototype, {
     }else{
       this.killTab(tabRef);
     }
+
+    this.updateBars()
   },
 
   setWindowEvents(){

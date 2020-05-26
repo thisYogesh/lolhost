@@ -4,7 +4,7 @@ return `
     <html>
        <head>
           <!--&#10084;-->
-          <title>Lolhost editor</title>
+          <title>lolitor</title>
           <link href="@app/images/lol.png" rel="icon">
           <script src="@app/lolitor/build/src/ace.js"></script>
           <link href="@app/css/font.lolitor.css" rel="stylesheet">
@@ -13,8 +13,16 @@ return `
        <body>
           <main id="lolitore" class="main-wrapper">
              <header class="app-header">
-                index.html <a class="emb-spiral">~</a><a class="emb-heart">&#10084;</a
-                   ><a class="emb-spiral --twist">~</a> Lolhost
+                <div class="app-error-msg">
+                  <span class="error-copy"></span>
+                </div>
+                <div class="app-header-bar">
+                  <span class="app-header-filename"></span> 
+                  <span class="app-header-emb">
+                    <a class="emb-spiral">~</a><a class="emb-heart">&#10084;</a><a class="emb-spiral --twist">~</a>
+                  </span>
+                  <span class="app-header-appname">lolitor</span>
+                </div>
              </header>
              <section class="app-middle">
                 <aside class="app-file-explorer app-piller">

@@ -20,11 +20,16 @@ body {
 }
 
 .app-header {
+  position: relative;
   height: var(--app-top-bar-height);
   background-color: var(--color-5);
   text-align: center;
   font-size: 13px;
   line-height: var(--app-top-bar-height);
+}
+
+.app-header-filename:empty + .app-header-emb {
+  display: none;
 }
 
 .app-footer {
@@ -280,6 +285,10 @@ body {
   cursor: default;
 }
 
+.app-status-item:empty {
+  display: none;
+}
+
 .app-image-tab {
   margin: 0;
   width: 100%;
@@ -293,6 +302,8 @@ body {
   position: relative;
   left: 50%;
   top: 50%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .app-tab-nos {
@@ -330,8 +341,40 @@ body {
   left: -72px;
 }
 
+.app-error-msg {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  height: 100%;
+  width: 100%;
+  background-color: #b22;
+  z-index: 1;
+  box-shadow: 0px 1px 2px #000;
+  text-transform: uppercase;
+  color: #e6e6e6;
+  transition: bottom .2s ease;
+}
 
-/* 
+.app-error-msg.--show {
+  bottom: 0;
+}
+
+.error-copy {
+  position: relative;
+  left: 0;
+}
+
+.error-copy.--highlight-error {
+  animation: shakeit .1s;
+  animation-iteration-count: 2;
+}
+
+@keyframes shakeit{
+  0%{ left: -10px }
+  50%{ left: 10px }
+  100%{ left: -10px }
+}
+/*
 .ace_gutter, .ace_scroller {
     padding-top: var(--ace-editor-pt);
 } */
@@ -350,3 +393,15 @@ body {
 }
 .modify-scrollbar::-webkit-resizer {
 } */
+
+.--hide {
+  display: none
+}
+
+.--show-block {
+  display: block
+}
+
+.--show-inline-block {
+  display: block
+}
