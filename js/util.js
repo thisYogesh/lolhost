@@ -100,7 +100,15 @@ const errorPage = (code)=> {
 }
 
 const normPath = (path) => {
-    return path.replace(`/node_modules/${package.name}`, '');
+  let lenIndex = path.indexOf('/node_modules')
+
+  // for development purpose
+  if(lenIndex === -1){
+    const pk = '/' + package.name
+    lenIndex = path.indexOf(pk) + pk.length
+  }
+
+  return path.substr(0, lenIndex);
 }
 
 module.exports = {
@@ -232,7 +240,8 @@ module.exports = {
         const isAppURL =  appRx.test(_url)
     
         if(isAppURL) _url = _url.replace(appRx, '');
-        else _dirname = this.normPath(_dirname)
+        // else 
+        _dirname = this.normPath(_dirname)
     
         const rootDirName = this.getRootDirName(_dirname) +  _url
         const currentPath = decodeURIComponent(this.getCurrentPath(_url))    

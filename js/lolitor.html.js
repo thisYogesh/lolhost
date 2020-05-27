@@ -5,10 +5,10 @@ return `
        <head>
           <!--&#10084;-->
           <title>lolitor</title>
-          <link href="@app/images/lol.png" rel="icon">
-          <script src="@app/lolitor/build/src/ace.js"></script>
-          <link href="@app/css/font.lolitor.css" rel="stylesheet">
-          <link href="@app/lolitor/main.css" rel="stylesheet">
+          <link href="/@app/images/lol.png" rel="icon">
+          <script src="/@app/lolitor/build/src/ace.js"></script>
+          <link href="/@app/css/font.lolitor.css" rel="stylesheet">
+          <link href="/@app/lolitor/main.css" rel="stylesheet">
        </head>
        <body>
           <main id="lolitore" class="main-wrapper">
@@ -59,7 +59,7 @@ return `
               </div>
             </div>
           </section>
-          <script src="@app/lolitor/main.bundle.js"></script>
+          <script src="/@app/lolitor/main.bundle.js"></script>
        </body>
     </html>
     `

@@ -115,7 +115,7 @@ Object.assign(lolitor.prototype, {
     }
   },
 
-  onSave(){
+  onSave(cb){
     const _this = this
     const currentTab = _this.currentTab
     if(!currentTab) return;
@@ -127,8 +127,11 @@ Object.assign(lolitor.prototype, {
 
       responce(resp){
         if(resp.update){
-          _this._unsaved = false
+          const tabRef = _this.currentTab
+          tabRef._unsaved = false;
+          tabRef.value = tabRef.editor.getValue()
           _this.handleSaveStatus()
+          cb && cb()
         }else{
           _this.throwAppError("This file can't be overwritten! File Access not allowed.")
         }
@@ -140,16 +143,19 @@ Object.assign(lolitor.prototype, {
     
   },
 
-  onChange(){
+  onFileContentChange(){
     if(!this._unsaved){
-      this._unsaved = true
+      this.currentTab._unsaved = true
       this.handleSaveStatus()
     }
   },
 
   handleSaveStatus(){
-    const closeButton = this.currentTab.button.querySelector('.app-file-close')
-    if(this._unsaved) closeButton.classList.add("--not-saved")
+    const tabRef = this.currentTab
+    const _unsaved = tabRef._unsaved
+    const closeButton = tabRef.button.querySelector('.app-file-close')
+
+    if(_unsaved) closeButton.classList.add("--not-saved")
     else closeButton.classList.remove("--not-saved")
   },
 
@@ -210,6 +216,12 @@ Object.assign(lolitor.prototype, {
 
     // setting up template type
     tabRef.template = template;
+
+    /**
+     * if tab has no template then save value in tab reference
+     * to preserve old value if user want to reject changes.
+     */
+    template === -1 && (tabRef.value = value)
   },
   initEditor(selector, tabReference) {
     const editor = ace.edit(selector);
@@ -381,7 +393,7 @@ Object.assign(lolitor.prototype, {
 
   $change(){
     this.currentTab.editor.on('change', () => {
-      this.onChange()
+      this.onFileContentChange()
     })
   },
 
@@ -604,7 +616,23 @@ Object.assign(lolitor.prototype, {
 
     closeTab.addEventListener('click', function(e){
       e.stopPropagation();
-      _this.closeTab(tabReference, true)
+
+      if(!tabReference._unsaved){
+        _this.closeTab(tabReference, true)
+      }else{
+        _this.confirm({
+          message: 'Do you want to save the changes?',
+          onConfirm(){
+            _this.onSave(function(){
+              _this.closeTab(tabReference, true)
+            })
+          },
+          onDiscard(){
+            _this.closeTab(tabReference, true)
+          },
+          // onAbort(){ }
+        })
+      }
     })
 
     return tab
@@ -634,23 +662,24 @@ Object.assign(lolitor.prototype, {
   },
 
   killTab(tabRef){
+    // show previous or next tab on tab remove
+    if(tabRef === this.currentTab) {
+      this.showAlternativeTab(tabRef.button)
+    }
+  
+    // remove it's elements from DOM
+    tabRef.el.remove()
+    tabRef.button.remove()
+    
     // remove tab reference 
     delete this.tabReference[tabRef.path]
-
+    
     // if all tabs are closed
     if(!Object.values(this.tabReference).length){
       const { tabParent } = this.getTabElems()
       tabParent.classList.remove('--has-tabs')
       this.currentTab = null
     }
-    // show previous or next tab on tab remove
-    else if(tabRef === this.currentTab) {
-      this.showAlternativeTab(tabRef.button)
-    }
-    
-    // finally remove it's elements from DOM
-    tabRef.el.remove()
-    tabRef.button.remove()
   },
 
   initStatusBar(){
@@ -806,14 +835,15 @@ Object.assign(lolitor.prototype, {
       popupBox.classList.remove('--bump-in')
       setTimeout(() => {
         cbox.classList.add('--hide');
-      }, 500);
+      }, 300);
     }
   },
 
   addConfirmBoxEvents({ onConfirm, onDiscard, onAbort }){
+    this.$cbConfig = { onConfirm, onDiscard, onAbort }
     if(this._initConfBox) return;
 
-    this.$cbConfig = { onConfirm, onDiscard, onAbort }
+    const cbox = this._confirmationBox
     this._initConfBox = true;
     const confirmBtn = cbox.querySelector('.--save-btn')
     const discardBtn = cbox.querySelector('.--dont-btn')

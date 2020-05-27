@@ -1,7 +1,7 @@
-const { http, main, fs, util } = require("./js/modules")();
-const { Method } = require("./js/enums");
+const { http, main, fs, util } = require("./modules")();
+const { Method } = require("./enums");
 const unsuportedMsg = "This file has an unsuported text encoding";
-const indexHtml = require("./js/lolitor.html.js");
+const indexHtml = require("./lolitor.html.js");
 
 function API(port = 8000) {
   http

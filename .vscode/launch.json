@@ -7,14 +7,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "API",
-            "program": "${workspaceFolder}/api.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
             "name": "My Localhost",
-            "program": "${workspaceFolder}/js/app.js"
+            "program": "${workspaceFolder}/js/run.js"
         },
     ]
 }

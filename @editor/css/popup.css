@@ -82,7 +82,7 @@
 }
 
 .app-popup-box.--bump-out {
-  animation: popout .3s;
+  animation: popout .2s;
   transform: translateY(-50%) scale(0);
 }
 
