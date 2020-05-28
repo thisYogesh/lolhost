@@ -2,8 +2,9 @@ const { http, main, fs, util } = require("./modules")();
 const { Method } = require("./enums");
 const unsuportedMsg = "This file has an unsuported text encoding";
 const indexHtml = require("./lolitor.html.js");
+const { logFileUpdate } = require('./log')
 
-function API(port = 8000) {
+function lolitor(port) {
   http
     .createServer(function(req, res) {
       const method = req.method;
@@ -45,10 +46,16 @@ function API(port = 8000) {
             fs.writeFile({
               path: pathWithDir
             }, content, function(err){
-              if(!err){
+              const filename = util.lastArrayItem(pathWithDir.split('/'))
+              if(!err){  
+                // log operation status
+                logFileUpdate(filename, pathWithDir, true)
+
                 res.end(JSON.stringify({ update: true }))
                 return;
               }
+              // log operation status
+              logFileUpdate(filename, pathWithDir, false)
 
               // coule be "permission access" issue
               res.end(JSON.stringify({ update: false }))
@@ -108,4 +115,4 @@ function API(port = 8000) {
     .listen(port);
 }
 
-module.exports = API;
+module.exports = lolitor;

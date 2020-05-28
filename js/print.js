@@ -153,7 +153,7 @@ function getBoxData(lines){
     let maxLen = 0
     if(Array.isArray(lines)){
         lines.forEach(function(line){
-            maxLen = buildupLines(line, maxLen, dataset)
+          maxLen = buildupLines(line, maxLen, dataset)
         })
     }else{
         maxLen = buildupLines(lines, maxLen, dataset)
@@ -186,5 +186,6 @@ module.exports = {
     printBox,
     colorType,
     color,
-    effect
+    effect,
+    logger: log
 }

@@ -312,5 +312,9 @@ module.exports = {
         }
       }
       return supported
+    },
+
+    lastArrayItem(array){
+      return array[array.length - 1]
     }
 }
