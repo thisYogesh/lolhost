@@ -23,8 +23,7 @@ require('lolhost')(8000);
 ```
 Now you are good to go! 👍
 
-
-## lolhost server configuration setting
+<!-- ## lolhost server configuration setting
 #### Default config:
 ```conf
 {
@@ -32,4 +31,4 @@ Now you are good to go! 👍
     "dirListing": false
 }
 ```
-Create `lolhost.config` file under root directory and modify as per need.
+Create `lolhost.config` file under root directory and modify as per need. -->

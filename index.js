@@ -23,50 +23,47 @@ function server(port = 8000){
         try{
             const statInfo = fs.statSync(pathWithDir)
             if(statInfo.isDirectory()){
-                if(!config.dirListing){
-                    fs.readFile(pathWithDir + '/' + config.dirIndex, null, function(err, content){
-                        if(err){
-                            util.throwError(res, {
-                                code: 403.13,
-                                message: 'Forbidden directory!'
+                fs.readFile(pathWithDir + '/' + config.dirIndex, null, function(err, content){
+                    if(!err){
+                        res.setHeader('content-type', 'text/html');
+                        util.response(res, content, true)
+                        return;
+                    }
+
+                    // if dirIndex is not present then show directory list
+                    showDirListing()
+                })
+
+                function showDirListing(){
+                    fs.readdir(pathWithDir, 'utf8', function(err, files){
+                        if(!err){
+                            files.forEach(path => {
+                                const stat = fs.statSync(pathWithDir + '/' + path);
+                                const isDirectory = stat.isDirectory()
+                                const type = isDirectory ? 'Folder' : 'File'
+                                const pathName = isDirectory ? `${path}/` : path
+                                const href = currentPath ? `${currentPath}/${path}` : `/${path}`
+                                const isHidden = /^\./.test(pathName) ? '--hidden' : ''
+                                const pathAnchor = `<a class='path-name ${isHidden}' title='${pathName}' href='${href}'>${pathName}</a>`
+                                const dateTime = util.getDateTime(stat.birthtime)
+                                const size = isDirectory ? '--' : util.getSize(stat.size)
+                                const statInfo = util.createWrapper([pathAnchor, type, dateTime, size], 'td', null)
+                                dirInfo.push(statInfo)
                             })
+                            
+                            const breadcrumb = util.createNav(rootDirName);
+    
+                            if(!files.length){
+                                dirInfo.push(util.createWrapper(['This Folder is empty!'], `td(colspan=${infoHeaders.length})(align=center)`, 'tr'))
+                            }
+    
+                            dirInfo = util.createWrapper(dirInfo, 'tr', 'table(class=theme1)')
+                            util.response(res, `${breadcrumb}<section>${dirInfo}</section>`)
                         }else{
-                            res.setHeader('content-type', 'text/html');
-                            util.response(res, content, true)
+                            util.response(res)
                         }
                     })
-                    
-                    return;
                 }
-
-                fs.readdir(pathWithDir, 'utf8', function(err, files){
-                    if(!err){
-                        files.forEach(path => {
-                            const stat = fs.statSync(pathWithDir + '/' + path);
-                            const isDirectory = stat.isDirectory()
-                            const type = isDirectory ? 'Folder' : 'File'
-                            const pathName = isDirectory ? `${path}/` : path
-                            const href = currentPath ? `${currentPath}/${path}` : `/${path}`
-                            const isHidden = /^\./.test(pathName) ? '--hidden' : ''
-                            const pathAnchor = `<a class='path-name ${isHidden}' title='${pathName}' href='${href}'>${pathName}</a>`
-                            const dateTime = util.getDateTime(stat.birthtime)
-                            const size = util.getSize(stat.size)
-                            const statInfo = util.createWrapper([pathAnchor, type, dateTime, size], 'td', null)
-                            dirInfo.push(statInfo)
-                        })
-                        
-                        const breadcrumb = util.createNav(rootDirName);
-
-                        if(!files.length){
-                            dirInfo.push(util.createWrapper(['This Folder is empty!'], `td(colspan=${infoHeaders.length})(align=center)`, 'tr'))
-                        }
-
-                        dirInfo = util.createWrapper(dirInfo, 'tr', 'table(class=theme1)')
-                        util.response(res, `${breadcrumb}<section>${dirInfo}</section>`)
-                    }else{
-                        util.response(res)
-                    }
-                })
             }else{ // open file
                 fs.readFile(pathWithDir, null, function(err, content){
                     if(!err){
