@@ -47,8 +47,7 @@ function lolhost(port){
                                 const hiddenClass = fileInfo.isHidden ? '--hidden' : ''
                                 const pathAnchor = `<a class='path-name ${hiddenClass}' title='${title}' href='${fileInfo.href}'>${pathName}</a>`
                                 const dateTime = util.getDateTime(stat.birthtime)
-                                const size = util.getSize(stat.size)
-                                const statInfo = util.createWrapper([pathAnchor, type, dateTime, size], 'td', null)
+                                const statInfo = util.createWrapper([pathAnchor, type, dateTime, fileInfo.size], 'td', null)
                                 dirInfo.push(statInfo)
                             })
                             

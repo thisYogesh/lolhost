@@ -12,60 +12,6 @@ supportedTypes.forEach(type => {
     type.includes('image/') && (imageTypes[type] = true)
 })
 
-const getElAttrs = (tag) => {
-    const attrRx = /\([a-z]+=[a-z|\-|\w+]+\)/ig
-    const start = tag.replace(/\(|\)/g, ' ')
-    const end = tag.replace(attrRx, '')
-
-    return { start, end }
-}
-
-const wrap = (wrapperEl, innerHtml) => {
-    try{
-      const elAttrs = getElAttrs(wrapperEl)
-      const wrapperElStart = elAttrs.start
-      const wrapperElEnd = elAttrs.end
-
-      let el = innerHtml ? `<${wrapperElStart}>${innerHtml}</${wrapperElEnd}>` : `</${wrapperElEnd}><${wrapperElStart}>`
-      return el
-    }catch{
-      console.log('Error at .wrap() in util.js')
-    }
-}
-
-const createWrapper = (items , itemEl = 'td', itemElWrapper = 'tr')  => {
-    const isObject = typeof items[0] === "object"
-    let html = '', wrapped = ''
-    if(!isObject){
-        const innerHtml = items.join(wrap(itemEl))
-        wrapped = wrap(itemEl, innerHtml)
-    }else{
-        const el = getElAttrs(itemEl).end
-        wrapped = items.reduce((acc, item) => {
-            const elAttrs = getElAttrs(item.attr)
-            acc.push(`<${el} ${elAttrs.start}>${item.content}</${el}>`)
-            return acc
-        }, []).join('')
-    }
-    
-    html = itemElWrapper ? wrap(itemElWrapper, wrapped) : wrapped
-
-    return html
-}
-
-const addAttrs = (str, attrs) => {
-    Object.keys(attrs).forEach(attr => {
-        str  = str.concat('(', attr, '=', attrs[attr], ')')
-    })
-
-    return str
-}
-
-const response = (res, data = '', isFile = false) => {
-    !isFile && res.write(`<head> <link rel="stylesheet" href="/@app/css/style.css"/> </head>`);
-    res.end(data)
-}
-
 const errorPage = (code)=> {
     let content = ''
     switch(code){
@@ -99,28 +45,79 @@ const errorPage = (code)=> {
     return content
 }
 
-const normPath = (path) => {
-  let lenIndex = path.indexOf('/node_modules')
-
-  // for development purpose
-  if(lenIndex === -1){
-    const pk = '/' + package.name
-    lenIndex = path.indexOf(pk) + pk.length
-  }
-
-  return path.substr(0, lenIndex);
-}
-
 module.exports = {
     types,
     supportedTypes,
     supportedExt,
     package,
-    createWrapper,
-    response,
-    normPath,
 
-    getRootDirName (dirname){
+    getElAttrs(tag) {
+      const attrRx = /\([a-z]+=[a-z|\-|\w+]+\)/ig
+      const start = tag.replace(/\(|\)/g, ' ')
+      const end = tag.replace(attrRx, '')
+  
+      return { start, end }
+    },
+  
+    wrap(wrapperEl, innerHtml) {
+      try{
+        const elAttrs = this.getElAttrs(wrapperEl)
+        const wrapperElStart = elAttrs.start
+        const wrapperElEnd = elAttrs.end
+  
+        let el = innerHtml ? `<${wrapperElStart}>${innerHtml}</${wrapperElEnd}>` : `</${wrapperElEnd}><${wrapperElStart}>`
+        return el
+      }catch{
+        console.log('Error at .wrap() in util.js')
+      }
+    },
+
+    createWrapper(items , itemEl = 'td', itemElWrapper = 'tr') {
+      const isObject = typeof items[0] === "object"
+      let html = '', wrapped = ''
+      if(!isObject){
+          const innerHtml = items.join(this.wrap(itemEl))
+          wrapped = this.wrap(itemEl, innerHtml)
+      }else{
+          const el = this.getElAttrs(itemEl).end
+          wrapped = items.reduce((acc, item) => {
+              const elAttrs = this.getElAttrs(item.attr)
+              acc.push(`<${el} ${elAttrs.start}>${item.content}</${el}>`)
+              return acc
+          }, []).join('')
+      }
+      
+      html = itemElWrapper ? this.wrap(itemElWrapper, wrapped) : wrapped
+  
+      return html
+    },
+
+    addAttrs(str, attrs) {
+      Object.keys(attrs).forEach(attr => {
+        str  = str.concat('(', attr, '=', attrs[attr], ')')
+      })
+    
+      return str
+    },
+
+    response(res, data = '', isFile = false) {
+      !isFile && res.write(`<head> <link rel="stylesheet" href="/@app/css/style.css"/> </head>`);
+      res.end(data)
+    },
+    
+    normPath(path, isAppURL) {
+      let lenIndex = path.indexOf('/node_modules')
+    
+      // for development purpose
+      if(lenIndex === -1 || isAppURL){
+        const pk = '/' + package.name
+        lenIndex = path.indexOf(pk) + pk.length
+      }
+    
+      return path.substr(0, lenIndex);
+    },
+
+    getRootDirName(dirname) {
         var dirSplit = dirname.split('/');
         global.appRootPath = dirSplit[dirSplit.length  - 1]
         return dirSplit[dirSplit.length  - 1]
@@ -181,15 +178,15 @@ module.exports = {
             const __path = path === global.appRootPath ? '/' : path.concat('/')
             path && acc.push({
                 content: path,
-                attr: addAttrs('', { href: _path += __path })
+                attr: this.addAttrs('', { href: _path += __path })
             })
             return acc
         }, [])
 
-        return createWrapper(
+        return this.createWrapper(
             paths, 
-            addAttrs('a', { class: 'nav-item' }), 
-            addAttrs('nav', {id: 'nav-bar'})
+            this.addAttrs('a', { class: 'nav-item' }), 
+            this.addAttrs('nav', {id: 'nav-bar'})
         )
     },
 
@@ -200,7 +197,7 @@ module.exports = {
     throwError(res, status = {}){
         const code = status.code
         res.writeHead(code, status.message || '')
-        response(res, errorPage(code))
+        this.response(res, errorPage(code))
     },
 
     getConfig(){
@@ -234,55 +231,57 @@ module.exports = {
     },
 
     getPathInfo({ url, dirname }){
-        const appRx = /^\/@app/;
-        let _url = this.normUrl(this.decode(url))
-        let _dirname = dirname.replace(/\\/g, '/');
-        const isAppURL =  appRx.test(_url)
-    
-        if(isAppURL) _url = _url.replace(appRx, '');
-        // else 
-        _dirname = this.normPath(_dirname)
-    
-        const rootDirName = this.getRootDirName(_dirname) +  _url
-        const currentPath = decodeURIComponent(this.getCurrentPath(_url))    
-        const pathWithDir = _dirname + currentPath
-    
-        return {
-            rootDirName,
-            currentPath,
-            pathWithDir,
-            isAppURL
-        }
+      const appRx = /^\/@app/;
+      let _url = this.normUrl(this.decode(url))
+      let _dirname = dirname.replace(/\\/g, '/');
+      const isAppURL =  appRx.test(_url)
+  
+      if(isAppURL) _url = _url.replace(appRx, '');
+      // else 
+      _dirname = this.normPath(_dirname, isAppURL)
+  
+      const rootDirName = this.getRootDirName(_dirname) +  _url
+      const currentPath = decodeURIComponent(this.getCurrentPath(_url))    
+      const pathWithDir = _dirname + currentPath
+  
+      return {
+        rootDirName,
+        currentPath,
+        pathWithDir,
+        isAppURL
+      }
     },
 
     getContentType(path){
-        const extention = path.match(/\.\w+$/)
-        const ext = extention && extention[0]
-        const isSupportedExtention = this.isSupportedExtention(ext)
-        let contentType = isSupportedExtention ? this.types[ext] : this.types['default']
+      const extention = path.match(/\.\w+$/)
+      const ext = extention && extention[0]
+      const isSupportedExtention = this.isSupportedExtention(ext)
+      let contentType = isSupportedExtention ? this.types[ext] : this.types['default']
 
-        return contentType
+      return contentType
     },
 
     setContentType(res, path){
-        const contentType = this.getContentType(path)
-        res.setHeader('content-type', contentType);
+      const contentType = this.getContentType(path)
+      res.setHeader('content-type', contentType);
     },
 
     getFileInfo(fs, pathWithDir, path, currentPath){
-        const stat = fs.statSync(pathWithDir + '/' + path);
-        const isDirectory = stat.isDirectory()
-        const title = path
-        const isHidden = /^\./.test(title)
-        const href = currentPath ? `${currentPath}/${path}` : `/${path}`
+      const stat = fs.statSync(pathWithDir + '/' + path);
+      const isDirectory = stat.isDirectory()
+      const title = path
+      const isHidden = /^\./.test(title)
+      const href = currentPath ? `${currentPath}/${path}` : `/${path}`
+      const size = !isDirectory ? this.getSize(stat.size) : ''
 
-        return {
-            isDirectory,
-            isHidden,
-            href,
-            title,
-            stat
-        }
+      return {
+        isDirectory,
+        isHidden,
+        href,
+        title,
+        size,
+        stat
+      }
     },
 
     buildResObject(data, isSupported = true, isImage = false){

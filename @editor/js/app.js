@@ -481,6 +481,7 @@ Object.assign(lolitor.prototype, {
     const isDirectory = item.isDirectory
     const title = item.title;
     const href = item.href;
+    const size = item.size
     const iconHtml = this.getIconHtml(item);
     const html = `
         <li class="app-list-item" data-isdirectory="${isDirectory}" data-href="${href}" data-isopen="false">
@@ -488,7 +489,10 @@ Object.assign(lolitor.prototype, {
             <span class="app-list-highlight"></span> 
             <div class="app-list-name-content">
               ${iconHtml}
-              <span class="app-list-name-title">${title}</span>
+              <span class="app-list-name-title">
+                ${title}
+                <i class="app-list-item-size ${!size && '--hide' || ''}">&#8212; ${size}</i>
+              </span>
             </div>
           </a>
         </li>`;
