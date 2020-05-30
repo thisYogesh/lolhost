@@ -145,27 +145,27 @@ module.exports = {
     },
 
     getSize(bytes){
-        let size = 0;
-        let unit = ''
-        if(bytes > TB){
-            size = bytes/TB
-            unit = 'TB'
-        }else if(bytes > GB){
-            size = bytes/GB
-            unit = 'GB'
-        }else if(bytes > MB){
-            size = bytes/MB
-            unit = 'MB'
-        }else if(bytes > KB){
-            size = bytes/KB
-            unit = 'KB'
-        }else{
-            size = bytes
-            unit = 'B'
-        }
+      let size = 0;
+      let unit = ''
+      if(bytes > TB){
+        size = bytes/TB
+        unit = 'TB'
+      }else if(bytes > GB){
+        size = bytes/GB
+        unit = 'GB'
+      }else if(bytes > MB){
+        size = bytes/MB
+        unit = 'MB'
+      }else if(bytes > KB){
+        size = bytes/KB
+        unit = 'KB'
+      }else{
+        size = bytes
+        unit = 'B'
+      }
 
-        size =  Math.round(size)
-        return `${size} ${unit}`;
+      size = size.toString().includes('.') ? size.toFixed(2) : size
+      return `${size} ${unit}`;
     },
 
     decode(url){

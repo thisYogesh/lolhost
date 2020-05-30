@@ -9,6 +9,7 @@ const template = {
   ImageTemplate: 0,
   FileUnsupportTemplate: 1
 }
+const rootPath = '/'
 
 function lolitor() {
   this.initApp();
@@ -33,10 +34,9 @@ Object.assign(lolitor.prototype, {
   },
 
   fetchRoot(){
-    this.getData('/', (err, resp)=>{
+    const rootItem = this._listRoot.querySelector('.app-list-item')
+    this.fetchDirectory('/',  rootItem, (err, resp)=>{
       if(!err){
-        const rootItem = this._listRoot.querySelector('.app-list-item')
-        this.prepareList(resp.data, rootItem)
         this.addRootScrollEvent();
       }
     })
@@ -100,25 +100,28 @@ Object.assign(lolitor.prototype, {
     })
   },
 
-  fetchDirectory(path, el){
+  fetchDirectory(path, el, cb){
     const isFetched = this.fetchedPath[path]
     if(!isFetched){
       this.setFetchedData(path, true)
       path && this.getData(path, (err, resp) => {
         if(!err){
+          this.saveInDataSet(resp.data)
           this.prepareList(resp.data, el)
-          this.toggleList(el, true)
+          path !== rootPath && this.toggleList(el, true)
         }
+
+        cb && cb(err, resp)
       })
     }else{
       this.toggleList(el, true)
     }
   },
 
-  onSave(cb){
+  saveFile(cb){
     const _this = this
     const currentTab = _this.currentTab
-    if(!currentTab) return;
+    if(!currentTab || !currentTab._unsaved) return;
 
     const content = currentTab.editor.getValue()
     _this.fetch(currentTab.path, {
@@ -131,23 +134,31 @@ Object.assign(lolitor.prototype, {
           tabRef._unsaved = false;
           tabRef.value = tabRef.editor.getValue()
           _this.handleSaveStatus()
+          
+          // update file size in dataSet
+          _this.dataSet[tabRef.path].size = resp.updatedSize
+          _this.updateFileSize()
+
+          // save the unsaved status in current tab
+          currentTab._unsaved = false
+
+          // callback if provided
           cb && cb()
         }else{
           _this.throwAppError("This file can't be overwritten! File Access not allowed.")
         }
       },
-      error(){
-
-      }
+      error(){}
     })
     
   },
 
   onFileContentChange(){
-    if(!this._unsaved){
-      this.currentTab._unsaved = true
-      this.handleSaveStatus()
-    }
+    const currentTab = this.currentTab;
+    if(currentTab._unsaved) return;
+
+    this.currentTab._unsaved = true
+    this.handleSaveStatus()
   },
 
   handleSaveStatus(){
@@ -186,6 +197,9 @@ Object.assign(lolitor.prototype, {
  * Dataset
  */
 Object.assign(lolitor.prototype, {
+  // map data by path
+  dataSet: {},
+
   getData(url, cb){
     this.fetch(url, {
       responce(data) {
@@ -199,6 +213,12 @@ Object.assign(lolitor.prototype, {
 
   setFetchedData(path, data){
     this.fetchedPath[path] = data
+  },
+
+  saveInDataSet(data){
+    data.forEach( item => {
+      this.dataSet[item.href] = item
+    })
   }
 })
 
@@ -259,6 +279,7 @@ Object.assign(lolitor.prototype, {
     // create tab button
     const tabButton = this.createTabDOM(filename, tabReference)
     tabParent.append(tabButton)
+    tabButton.scrollIntoView() // scroll to active tab button
     tabParent.classList.add('--has-tabs')
     tabReference.button = tabButton
     
@@ -331,7 +352,7 @@ Object.assign(lolitor.prototype, {
     return mode && this.lastArrayItem(mode.split('/'))
   },
 
-  updateStatusBar(){
+  updateFooterBar(){
     if(this.currentTab){
       this._appFooterStatus.classList.remove('--hide')
       if(this.currentTab.template === -1){
@@ -345,12 +366,14 @@ Object.assign(lolitor.prototype, {
         }[mode] || mode
         this._tabInfo.innerHTML = `Tab: ${tabSize}s`
         this.updateLineCol()
-        this._imgSize.innerHTML = ''
+        this._imgDimension.innerHTML = ''
+        this.updateFileSize()
       }else if(this.currentTab.template === template.ImageTemplate){
         this._modeInfo.innerHTML = ''
         this._tabInfo.innerHTML = ''
         this._lineInfo.innerHTML = ''
         this.showImageResolution()
+        this.updateFileSize()
       }else {
         this._appFooterStatus.classList.add('--hide')
       }
@@ -363,12 +386,21 @@ Object.assign(lolitor.prototype, {
     const _this = this;
     const img = _this.currentTab.el.querySelector('img')
     const updateInfo = function(){
-      _this._imgSize.innerHTML = `${this.naturalHeight} x ${this.naturalWidth}`
+      _this._imgDimension.innerHTML = `${this.naturalHeight} x ${this.naturalWidth}`
     }
     img.onload = function(){
       updateInfo.apply(this)
     }
     updateInfo.apply(img)
+  },
+
+  updateFileSize(){
+    const currentTab = this.currentTab;
+    const fileInfo = this.dataSet[currentTab.path]  
+    const sizeEl = currentTab.treeItem.querySelector('.app-list-item-size')
+
+    this._fileSize.innerHTML = fileInfo.size
+    sizeEl.innerHTML = fileInfo.size
   },
 
   updateHeaderBar(){
@@ -383,7 +415,7 @@ Object.assign(lolitor.prototype, {
 
   updateBars(){
     this.updateHeaderBar()
-    this.updateStatusBar()
+    this.updateFooterBar()
   },
 
   updateLineCol(){
@@ -496,7 +528,6 @@ Object.assign(lolitor.prototype, {
             </div>
           </a>
         </li>`;
-
     return html.trim();
   },
 
@@ -586,7 +617,7 @@ Object.assign(lolitor.prototype, {
     // to forcefully apply toggle state
     if(forceState !== undefined) dataset.isopen = !forceState
 
-    const isOpen = dataset.isopen
+    const isOpen = dataset.isopen || Bool.FALSE
     if(isOpen === Bool.TRUE){
       list.classList.add('--hide')
     }else{
@@ -601,7 +632,7 @@ Object.assign(lolitor.prototype, {
     const _this = this
     const wrapper = document.createElement('div')
     const html = `
-    <div class="app-tab-item --active-tab">
+    <div tabindex="0" class="app-tab-item --active-tab">
       ${filename}
       <a tabindex="0" class="app-file-close">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -627,7 +658,7 @@ Object.assign(lolitor.prototype, {
         _this.confirm({
           message: 'Do you want to save the changes?',
           onConfirm(){
-            _this.onSave(function(){
+            _this.saveFile(function(){
               _this.closeTab(tabReference, true)
             })
           },
@@ -692,16 +723,18 @@ Object.assign(lolitor.prototype, {
         <li class="app-status-item --line-info"></li>
         <li class="app-status-item --mode-info"></li>
         <li class="app-status-item --tab-info"></li>
-        <li class="app-status-item --img-size"></li>
+        <li class="app-status-item --img-dimension"></li>
+        <li class="app-status-item --file-size"></li>
       </ul>
     `
     const statusBar = document.createElement('div')
     statusBar.innerHTML = html;
 
+    this._fileSize = statusBar.querySelector('.--file-size')
     this._lineInfo = statusBar.querySelector('.--line-info')
     this._modeInfo = statusBar.querySelector('.--mode-info')
     this._tabInfo = statusBar.querySelector('.--tab-info')
-    this._imgSize = statusBar.querySelector('.--img-size')
+    this._imgDimension = statusBar.querySelector('.--img-dimension')
 
     const footerEl = document.querySelector('.app-footer')
     footerEl.append(statusBar.querySelector('.app-status'))
@@ -766,6 +799,7 @@ Object.assign(lolitor.prototype, {
     this.highlightInTree(tabRef.treeItem, true);
     this.currentTab = tabRef
     this.updateBars()
+    tabRef.button.scrollIntoView() // scroll to active tab button
   },
 
   closeTab(tabReference, killTab = false){
@@ -786,7 +820,7 @@ Object.assign(lolitor.prototype, {
     window.addEventListener('keydown', function(e){
       if( (e.ctrlKey || e.metaKey) && e.keyCode === 83 ){
         e.preventDefault()
-        _this.onSave()
+        _this.saveFile()
       }
     })
 

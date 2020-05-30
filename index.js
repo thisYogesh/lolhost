@@ -1,1 +1,5 @@
-module.exports = require('./js/app')
+/*
+ * Entry to the application.
+ */
+ 
+module.exports = require('./js/app');

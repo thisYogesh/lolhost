@@ -47,11 +47,14 @@ function lolitor(port) {
               path: pathWithDir
             }, content, function(err){
               const filename = util.lastArrayItem(pathWithDir.split('/'))
-              if(!err){  
+              if(!err){
+                const stat = fs.statSync(pathWithDir)
+                const size = util.getSize(stat.size)
+
                 // log operation status
                 logFileUpdate(filename, pathWithDir, true)
 
-                res.end(JSON.stringify({ update: true }))
+                res.end(JSON.stringify({ update: true, updatedSize: size }))
                 return;
               }
               // log operation status

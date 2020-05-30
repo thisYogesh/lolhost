@@ -4,7 +4,7 @@ const frame = {
     lb : '\u2570',
     rb : '\u256F',
     hl : '\u2500',
-    vl : '\u2502'
+    vl : '\u2502',
 }
 
 const reset = "\x1b[0m";
