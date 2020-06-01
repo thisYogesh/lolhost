@@ -14,7 +14,7 @@ body {
 }
 
 #lolitore {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   width: 100%;
@@ -170,6 +170,10 @@ body {
   opacity: 0;
   word-spacing: -3px;
   text-shadow: 0px 1px 0px #003b63;
+}
+
+.app-list-item.--read-only-dir{
+  opacity: .5;
 }
 
 .app-list-item:hover > .app-list-name .app-list-item-size{
@@ -428,6 +432,69 @@ body {
 .app-file-close.--not-saved svg {
   opacity: 0;
 }
+
+.app-create-input {
+  font-family: Inconsolata;
+  font-size: 15px;
+  line-height: inherit;
+  color: inherit;
+  vertical-align: bottom;
+  padding: 0 8px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-4);
+  background-color: var(--color-2);
+}
+
+.app-item-create-wrap {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  z-index: 1;
+}
+
+.app-item-create > svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.app-item-create.--create-file svg {
+  height: 16px;
+}
+
+.app-item-create.--create-dir svg {
+  height: 20px;
+}
+
+.app-item-create {
+  position: relative;
+  padding: 0;
+  width: var(--list-item-height);
+  float: left;
+  border: 0;
+  background-color: transparent;
+  color: inherit;
+  height: var(--list-item-height);
+  line-height: calc(var(--list-item-height));
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.app-item-create:hover {
+  background-color: #ffffff26;
+}
+
+
+
+
+
+
+
+
+
+
 
 /* Editor search widget */
 .ace_search.right {

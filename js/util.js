@@ -303,7 +303,7 @@ module.exports = {
 
     isSupported(encoding){
       let supported = true
-      const nonSupportedEncodes = ['windows-','UTF-32BE']
+      const nonSupportedEncodes = ['windows-','UTF-32BE', 'UTF-16BE']
       for(let encode of nonSupportedEncodes){
         if(encoding.includes(encode)) {
           supported = false;

@@ -31,9 +31,17 @@ return `
                    </div>
                    <ul class="app-list-wrapper --root-wrapper">
                       <li class="app-list-item">
-                         <a class="app-list-name file-ex-side-pad --root">
+                        <a class="app-list-name file-ex-side-pad --root">
                          ${rootTitle}
-                         </a>
+                        </a>
+                        <div class="app-item-create-wrap">
+                          <button class="app-item-create --create-file">
+                            <svg viewBox="0 0 32 32"><path fill="currentColor" class="cls-1" d="M26.74,8.5a.65.65,0,0,0,0-.19.64.64,0,0,0,0-.07A.86.86,0,0,0,26.53,8L20.86,2.46a.83.83,0,0,0-.22-.14l-.07,0a.58.58,0,0,0-.18,0H6A.76.76,0,0,0,5.25,3V29a.76.76,0,0,0,.75.75H26a.76.76,0,0,0,.75-.75V8.55S26.74,8.52,26.74,8.5ZM21,17.75H16.75V22a.75.75,0,0,1-1.5,0V17.75H11a.75.75,0,0,1,0-1.5h4.25V12a.75.75,0,0,1,1.5,0v4.25H21a.75.75,0,0,1,0,1.5ZM25.25,9.3H20.34a.75.75,0,0,1-.75-.75V3.75H20l1.06,1,3.07,3,1.09,1.06Z"/></svg>
+                          </button>
+                          <button class="app-item-create --create-dir">
+                          <svg viewBox="0 0 32 32"><path fill="currentColor" class="cls-1" d="M27,9.25H14.38L11.6,5.55a.74.74,0,0,0-.6-.3H4A1.76,1.76,0,0,0,2.25,7V24A2.75,2.75,0,0,0,5,26.75H27A2.75,2.75,0,0,0,29.75,24V12A2.75,2.75,0,0,0,27,9.25ZM3.75,7A.25.25,0,0,1,4,6.75h6.63l1.87,2.5H3.75ZM20,18.75H16.75V22a.75.75,0,0,1-1.5,0V18.75H12a.75.75,0,0,1,0-1.5h3.25V14a.75.75,0,0,1,1.5,0v3.25H20a.75.75,0,0,1,0,1.5Z"/></svg>
+                          </button>
+                        </div>
                       </li>
                    </ul>
                 </aside>

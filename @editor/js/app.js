@@ -10,6 +10,7 @@ const template = {
   FileUnsupportTemplate: 1
 }
 const rootPath = '/'
+const ROFolders = ['.git', 'node_modules']
 
 function lolitor() {
   this.initApp();
@@ -24,13 +25,17 @@ Object.assign(lolitor.prototype, {
     this.fetchedPath = {}
 
     // save all opened tab reference
-    this.tabReference= {}
+    this.tabReference = {}
 
     // save some usefull elements reference in context
     this.initAppDomRef()
     
+    // fetch initial view
     this.fetchRoot()
+    
+    // attach necessary DOM events
     this.setWindowEvents()
+    this.createItemEvents()
   },
 
   fetchRoot(){
@@ -84,18 +89,20 @@ Object.assign(lolitor.prototype, {
           // initiate ace editor
           this.initEditor(tabId, tabReference)
           this.setTabData({value: data, tabRef: tabReference})
-          
           this.setCodeTheme(this.getItemPathExt(path))
-          // else this.setReadOnly(true)
 
           this.$cursorChange()
           this.$change()
         }
         
-        /**
-         * Update app header and footer
-         */
+        //Update app header and footer
         this.updateBars()
+
+        // set readonly if file is inside of Read only folders
+        if(this._isReadOnly) {
+          this.setReadOnly(true)
+          this._isReadOnly = false
+        }
       }
     })
   },
@@ -310,8 +317,12 @@ Object.assign(lolitor.prototype, {
     const treeItemName = treeItem.querySelector('.app-list-name')
     const rootListWrapper = this.getRootListWrapper()
 
-    this._lastFocusedItem.classList.remove('--active');
-    this._lastFocusedItem = treeItemName
+    const focusedItem = this._lastFocusedItem
+    if(focusedItem){
+      const focusedItemChild = focusedItem.querySelector('.app-list-name')
+      focusedItemChild.classList.remove('--active');
+      this._lastFocusedItem = treeItemName.parentElement
+    }
 
     treeItemName.focus()
     treeItemName.classList.add('--active')
@@ -515,15 +526,26 @@ Object.assign(lolitor.prototype, {
     const href = item.href;
     const size = item.size
     const iconHtml = this.getIconHtml(item);
+    const isReadOnly = isDirectory && ROFolders.includes(title)
+    const create = item.create
+    const createInnerListView = () => {
+      let html = ''
+      if(create){
+        html = `<input type="text" class="app-create-input">`
+      }else{
+        html = `${title} <i class="app-list-item-size ${!size && '--hide' || ''}">&#8212; ${size}</i>`
+      }
+
+      return html
+    }
     const html = `
-        <li class="app-list-item" data-isdirectory="${isDirectory}" data-href="${href}" data-isopen="false">
+        <li class="app-list-item${isReadOnly ? ' --read-only-dir' : ''}" data-isdirectory="${isDirectory}" data-href="${href}" data-isopen="false">
           <a tabindex="0" class="app-list-name file-ex-side-pad ${itemTypeClass} ${itemHiddenClass}">
             <span class="app-list-highlight"></span> 
             <div class="app-list-name-content">
               ${iconHtml}
               <span class="app-list-name-title">
-                ${title}
-                <i class="app-list-item-size ${!size && '--hide' || ''}">&#8212; ${size}</i>
+                ${createInnerListView()}
               </span>
             </div>
           </a>
@@ -746,12 +768,95 @@ Object.assign(lolitor.prototype, {
  */
 
 Object.assign(lolitor.prototype, {
+  createItemEvents(){
+    const _this = this;
+    const createButtons = document.querySelectorAll('.app-item-create')
+    createButtons.forEach(button => {
+      const isCreateFile = button.classList.contains('--create-file')
+      if(isCreateFile) button.addEventListener('click', function(){
+        _this.createFile()
+      })
+      else button.addEventListener('click', function(){
+        _this.createFolder()
+      })
+    })
+  },
+
+  getActiveFocusedList() {
+    let activeListEl;
+    const focusedItem = this._lastFocusedItem
+    if(focusedItem){
+      const data = focusedItem.dataset
+      if(data.isdirectory === Bool.TRUE) activeListEl = focusedItem.querySelector('.app-list-wrapper')
+      else activeListEl = focusedItem.parentElement
+    }else{
+      activeListEl = this._listRoot.querySelector('.app-list-wrapper')
+    }
+
+    return activeListEl
+  },
+
+  createNewItem(isDirectory){
+    const listEl = this.getActiveFocusedList()
+    const firstFileItem = listEl.querySelector(`:scope > [data-isdirectory=${isDirectory}]`)
+    const listItem = this.createListItem({
+      href: "",
+      isDirectory,
+      isHidden: false,
+      size: "",
+      title: "",
+      create: true
+    })
+    const domWrapper = document.createElement('div')
+    domWrapper.innerHTML = listItem
+    
+    const listItemDom = domWrapper.querySelector('.app-list-item')
+    listEl.insertBefore(listItemDom, firstFileItem)
+
+    this.CNItemEvents(listItemDom)
+  },
+
+  CNItemEvents(listItem){
+    const input = listItem.querySelector('input')
+
+    input.focus()
+    input.addEventListener('blur', function(){
+      listItem.remove()
+    })
+  },
+
+  createFile(){
+    this.createNewItem(false)
+  },
+
+  createFolder(){
+    this.createNewItem(true)
+  },
+
   addListEvents(list) {
     const _this = this;
     const rootListWrapper = this.getRootListWrapper()
     list.querySelectorAll(".app-list-item").forEach(function(el) {
       const listItem = el
       const listNameItem = listItem.querySelector(".app-list-name")
+
+      listItem.addEventListener('click', function(e){
+        let isValidPath = false
+
+        // check if clicked on file
+        for( let el of e.path ){
+          if(el.nodeType === 1 && el.classList.contains('app-list-item') && el.dataset.isdirectory === Bool.FALSE){
+            isValidPath = true
+          }
+        }
+
+        if(isValidPath){
+          const isReadOnly = this.classList.contains('--read-only-dir')
+          if(isReadOnly) _this._isReadOnly = isReadOnly
+        }else{
+          _this._isReadOnly = false
+        }
+      }, true)
 
       listItem.addEventListener("click", function(e){
         _this.fetchItem(this)
@@ -765,9 +870,12 @@ Object.assign(lolitor.prototype, {
 
       listNameItem.addEventListener('click', function(){
         const focusedItem = _this._lastFocusedItem
-        focusedItem && focusedItem.classList.remove('--active');
+        if(focusedItem){
+          const focusedItemChild = focusedItem.querySelector('.app-list-name')
+          focusedItemChild && focusedItemChild.classList.remove('--active');
+        }
         
-        _this._lastFocusedItem = this;
+        _this._lastFocusedItem = this.parentElement;
         this.classList.add('--active');
       })
     });
@@ -782,11 +890,13 @@ Object.assign(lolitor.prototype, {
           _this._highlighting = false;
           return;
         }
-        const focusedItem = _this._lastFocusedItem
         if(_this._lastHoveredItem) _this.setHighlightMargin(_this._lastHoveredItem, rootListWrapper)
+        
+        const focusedItem = _this._lastFocusedItem
         if(focusedItem){
-          focusedItem.classList.remove('--active')
-          focusedItem.blur()
+          const focusedItemChild = focusedItem.querySelector('.app-list-name')
+          focusedItemChild.classList.remove('--active')
+          focusedItemChild.blur()
         }
       })
     });
