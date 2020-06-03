@@ -125,39 +125,52 @@ Object.assign(lolitor.prototype, {
     }
   },
 
-  saveFile(cb){
+  saveFileData(config, cb){
+    this.fetch(config.path, {
+      method: Method.PUT,
+      body: config.content,
+
+      responce(resp){
+        // callback if provided
+        cb && cb(resp)
+      },
+      error(){}
+    })
+  },
+
+  saveCurrentTab(cb){
     const _this = this
     const currentTab = _this.currentTab
     if(!currentTab || !currentTab._unsaved) return;
 
     const content = currentTab.editor.getValue()
-    _this.fetch(currentTab.path, {
-      method: Method.PUT,
-      body: content,
+    this.saveFileData({
+      path: currentTab.path,
+      content
+    }, function(resp){
+      if(resp.update){
+        const tabRef = _this.currentTab
+        tabRef._unsaved = false;
+        tabRef.value = tabRef.editor.getValue()
+        _this.handleSaveStatus()
+        
+        // update file size in dataSet
+        _this.dataSet[tabRef.path].size = resp.updatedSize
+        _this.updateFileSize()
 
-      responce(resp){
-        if(resp.update){
-          const tabRef = _this.currentTab
-          tabRef._unsaved = false;
-          tabRef.value = tabRef.editor.getValue()
-          _this.handleSaveStatus()
-          
-          // update file size in dataSet
-          _this.dataSet[tabRef.path].size = resp.updatedSize
-          _this.updateFileSize()
+        // save the unsaved status in current tab
+        currentTab._unsaved = false
 
-          // save the unsaved status in current tab
-          currentTab._unsaved = false
-
-          // callback if provided
-          cb && cb()
-        }else{
-          _this.throwAppError("This file can't be overwritten! File Access not allowed.")
-        }
-      },
-      error(){}
+        // callback if provided
+        cb && cb()
+      }else{
+        _this.throwAppError("This file can't be overwritten! File Access not allowed.")
+      }
     })
-    
+  },
+
+  saveFile(cb){
+    this.saveCurrentTab(cb)
   },
 
   onFileContentChange(){
@@ -187,7 +200,7 @@ Object.assign(lolitor.prototype, {
     }else{
       const errorCopyClone = errorCopy.cloneNode(true)
       errorCopyClone.classList.add('--highlight-error')
-      errorCopy.parentElement.replaceChild(errorCopyClone, errorCopy)
+      errorCopy.parentNode.replaceChild(errorCopyClone, errorCopy)
     }
 
     this.__errorTimeId = setTimeout(() => {
@@ -252,11 +265,16 @@ Object.assign(lolitor.prototype, {
   },
   initEditor(selector, tabReference) {
     const editor = ace.edit(selector);
+    const session = editor.session
     editor.setOptions({
       fontFamily: "Inconsolata",
       fontSize: "17px"
     });
-    editor.session.setUseWorker(false);
+
+    // set editor session
+    session.setUseWorker(false) // to disable error info
+    session.setTabSize(2)
+    session.setUndoManager(new ace.UndoManager()) // Fix: file emptying issue on redo 
 
     tabReference.editor = editor;
     this.setTheme();
@@ -315,19 +333,18 @@ Object.assign(lolitor.prototype, {
 
     this._highlighting = true
     const treeItemName = treeItem.querySelector('.app-list-name')
-    const rootListWrapper = this.getRootListWrapper()
 
     const focusedItem = this._lastFocusedItem
     if(focusedItem){
       const focusedItemChild = focusedItem.querySelector('.app-list-name')
       focusedItemChild.classList.remove('--active');
-      this._lastFocusedItem = treeItemName.parentElement
+      this._lastFocusedItem = treeItemName.parentNode
     }
 
     treeItemName.focus()
     treeItemName.classList.add('--active')
 
-    this.setHighlightMargin(treeItemName, rootListWrapper)
+    this.setHighlightMargin(treeItemName)
   },
 
   openPathFolders(treeItem){
@@ -553,6 +570,14 @@ Object.assign(lolitor.prototype, {
     return html.trim();
   },
 
+  createListItemDOM(options){
+    const newListItem = this.createListItem(options)
+    const domWrapper = document.createElement('div')
+    domWrapper.innerHTML = newListItem
+
+    return domWrapper.querySelector('.app-list-item')
+  },
+
   getItemTypeClass(item) {
     return item.isDirectory ? "--is-folder" : "--is-file";
   },
@@ -627,7 +652,8 @@ Object.assign(lolitor.prototype, {
   },
 
   setHighlightMargin(listNameEl, rootWrapper){
-    const mt = rootWrapper.scrollTop;
+    const rootListWrapper = rootWrapper || this.getRootListWrapper()
+    const mt = rootListWrapper.scrollTop;
     const hl = listNameEl.querySelector(".app-list-highlight");
     hl.style.marginTop = -mt + "px";
   },
@@ -788,7 +814,7 @@ Object.assign(lolitor.prototype, {
     if(focusedItem){
       const data = focusedItem.dataset
       if(data.isdirectory === Bool.TRUE) activeListEl = focusedItem.querySelector('.app-list-wrapper')
-      else activeListEl = focusedItem.parentElement
+      else activeListEl = focusedItem.parentNode
     }else{
       activeListEl = this._listRoot.querySelector('.app-list-wrapper')
     }
@@ -796,89 +822,149 @@ Object.assign(lolitor.prototype, {
     return activeListEl
   },
 
-  createNewItem(isDirectory){
+  createNewItemPlaceholder(isDirectory){
     const listEl = this.getActiveFocusedList()
-    const firstFileItem = listEl.querySelector(`:scope > [data-isdirectory=${isDirectory}]`)
-    const listItem = this.createListItem({
-      href: "",
+    const firstItem = listEl.querySelector(`:scope > [data-isdirectory=${isDirectory}]`)
+    const itemConfig = {
+      href: listEl.parentNode.dataset.href || '/',
       isDirectory,
       isHidden: false,
       size: "",
       title: "",
       create: true
-    })
-    const domWrapper = document.createElement('div')
-    domWrapper.innerHTML = listItem
-    
-    const listItemDom = domWrapper.querySelector('.app-list-item')
-    listEl.insertBefore(listItemDom, firstFileItem)
+    }
+    const listItemDom = this.createListItemDOM(itemConfig)
+    listEl.insertBefore(listItemDom, firstItem)
 
-    this.CNItemEvents(listItemDom)
+    // open tree if closed
+    this.openPathFolders(firstItem)
+
+    // add DOM events to new treeItem
+    this.CNItemEvents(listItemDom, itemConfig, isDirectory)
   },
 
-  CNItemEvents(listItem){
+  CNItemEvents(listItem, itemConfig, isDirectory){
+    const _this = this
     const input = listItem.querySelector('input')
+    const createFn = this.createNewItem.bind(_this, listItem, itemConfig, isDirectory)
 
-    input.focus()
     input.addEventListener('blur', function(){
       listItem.remove()
     })
+
+    input.addEventListener('keyup', function(e){
+      _this.onEnterKeyUp(e, createFn)
+    })
+    
+    this.addListItemMouseEv(listItem)
+    input.focus()
+  },
+
+  createNewItem(listItem, itemConfig, isDirectory){
+    if(!isDirectory){
+      const input = listItem.querySelector('input')
+      const value = input.value
+      const _path = itemConfig.href
+      const prePath = _path === rootPath ? _path : _path.concat('/')
+      const path = `${prePath}${value}`
+
+      // create file on server
+      this.saveFileData({
+        path, content: ''
+      }, (resp) => {
+        const { update, updatedSize } = resp
+
+        if(update){
+          const listItemConfig = {
+            href: path,
+            isDirectory,
+            isHidden: false,
+            size: updatedSize,
+            title: value
+          }
+          const listItemDOM = this.createListItemDOM(listItemConfig)
+          listItem.parentNode.insertBefore(listItemDOM, listItem)
+          
+          // to remove listItem
+          input.blur()
+          
+          this.dataSet[path] = listItemConfig
+          this.addListItemEvents(listItemDOM)
+        }else{
+          this.throwAppError("Operation not allowed! File creation failed.")
+        }
+      })
+    }
   },
 
   createFile(){
-    this.createNewItem(false)
+    this.createNewItemPlaceholder(false)
   },
 
   createFolder(){
-    this.createNewItem(true)
+    this.createNewItemPlaceholder(true)
+  },
+
+  addListItemMouseEv(listItem, listNameItemEl){
+    const _this = this
+    const listNameItem = listNameItemEl || listItem.querySelector(".app-list-name")
+    listNameItem.addEventListener("mouseenter", function() {
+      _this.setHighlightMargin(this)
+      _this._lastHoveredItem = this
+    });
   },
 
   addListEvents(list) {
     const _this = this;
-    const rootListWrapper = this.getRootListWrapper()
     list.querySelectorAll(".app-list-item").forEach(function(el) {
-      const listItem = el
-      const listNameItem = listItem.querySelector(".app-list-name")
-
-      listItem.addEventListener('click', function(e){
-        let isValidPath = false
-
-        // check if clicked on file
-        for( let el of e.path ){
-          if(el.nodeType === 1 && el.classList.contains('app-list-item') && el.dataset.isdirectory === Bool.FALSE){
-            isValidPath = true
-          }
-        }
-
-        if(isValidPath){
-          const isReadOnly = this.classList.contains('--read-only-dir')
-          if(isReadOnly) _this._isReadOnly = isReadOnly
-        }else{
-          _this._isReadOnly = false
-        }
-      }, true)
-
-      listItem.addEventListener("click", function(e){
-        _this.fetchItem(this)
-        e.stopPropagation();
-      })
-
-      listNameItem.addEventListener("mouseenter", function() {
-        _this.setHighlightMargin(this ,rootListWrapper)
-        _this._lastHoveredItem = this
-      });
-
-      listNameItem.addEventListener('click', function(){
-        const focusedItem = _this._lastFocusedItem
-        if(focusedItem){
-          const focusedItemChild = focusedItem.querySelector('.app-list-name')
-          focusedItemChild && focusedItemChild.classList.remove('--active');
-        }
-        
-        _this._lastFocusedItem = this.parentElement;
-        this.classList.add('--active');
-      })
+      _this.addListItemEvents(el)
     });
+  },
+
+  addListItemEvents(listItem){
+    const _this = this;
+    const listNameItem = listItem.querySelector(".app-list-name")
+
+    /**
+     * Capture ON
+     * This event make sure to open file in readonly mode
+     * if file comes under restricted folders
+     */
+    listItem.addEventListener('click', function(e){
+      let isValidPath = false
+
+      // check if clicked on file
+      for( let el of e.path ){
+        if(el.nodeType === 1 && el.classList.contains('app-list-item') && el.dataset.isdirectory === Bool.FALSE){
+          isValidPath = true
+        }
+      }
+
+      if(isValidPath){
+        const isReadOnly = this.classList.contains('--read-only-dir')
+        if(isReadOnly) _this._isReadOnly = isReadOnly
+      }else{
+        _this._isReadOnly = false
+      }
+    }, true)
+
+    listItem.addEventListener("click", function(e){
+      _this.fetchItem(this)
+      e.stopPropagation();
+    })
+
+    this.addListItemMouseEv(listItem, listNameItem)
+
+    listNameItem.addEventListener('click', function(){
+      const focusedItem = _this._lastFocusedItem
+      if(focusedItem){
+        const focusedItemChild = focusedItem.querySelector('.app-list-name')
+        focusedItemChild && focusedItemChild.classList.remove('--active');
+      }
+      
+      _this._lastFocusedItem = this.parentNode;
+      this.classList.add('--active');
+    })
   },
 
   addRootScrollEvent() {
@@ -962,6 +1048,10 @@ Object.assign(lolitor.prototype, {
 
   frames(cb){
     window.requestAnimationFrame(cb)
+  },
+
+  onEnterKeyUp(e, cb){
+    if(e.keyCode === 13) cb && cb()
   }
 });
 
