@@ -89,12 +89,20 @@ module.exports = {
     console.log(info)
   },
 
-  logFileUpdate(filename, filepath = '', isUpdated = true){
+  logFileUpdate({name, path = '', isFile = false, isUpdated = false, isCreated = false}){
     let icon, message, colorCode;
 
-    if(isUpdated){
+    if(isFile && isUpdated){
       icon = '\u2714'
       message = 'File updated successfully!'
+      colorCode = color.green
+    }else if(isFile && isCreated){
+      icon = '\u2714'
+      message = 'File created successfully!'
+      colorCode = color.green
+    }else if(!isFile && isCreated){
+      icon = '\u2714'
+      message = 'Folder created successfully!'
       colorCode = color.green
     }else{
       icon = '\u2718'
@@ -105,18 +113,18 @@ module.exports = {
     const info = logger
       .value(`${icon} `)
       .color(colorType.fg, colorCode)
-      .value(`(${filename}) `)
+      .value(`(${name}) `)
       .color(colorType.fg, color.yellow)
       .value(`${message}`)
       .color(colorType.fg, color.cyan)
       .return()
 
-    const path = logger
-      .value(`\u279C ${filepath}\n`)
+    const _path = logger
+      .value(`\u279C ${path}\n`)
       .effect(effect.dim)
       .return()
 
     console.log(info)
-    console.log(path)
+    console.log(_path)
   }
 }

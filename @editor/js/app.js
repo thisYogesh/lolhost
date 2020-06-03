@@ -125,10 +125,11 @@ Object.assign(lolitor.prototype, {
     }
   },
 
-  saveFileData(config, cb){
-    this.fetch(config.path, {
+  sendToServer(config, cb){
+    const { path, update, create, isFile, content } = config
+    this.fetch(path, {
       method: Method.PUT,
-      body: config.content,
+      body: JSON.stringify({ update, create, isFile, content }),
 
       responce(resp){
         // callback if provided
@@ -144,9 +145,11 @@ Object.assign(lolitor.prototype, {
     if(!currentTab || !currentTab._unsaved) return;
 
     const content = currentTab.editor.getValue()
-    this.saveFileData({
+    this.sendToServer({
       path: currentTab.path,
-      content
+      content,
+      isFile: true,
+      update: true
     }, function(resp){
       if(resp.update){
         const tabRef = _this.currentTab
@@ -882,8 +885,11 @@ Object.assign(lolitor.prototype, {
       const path = `${prePath}${value}`
 
       // create file on server
-      this.saveFileData({
-        path, content: ''
+      this.sendToServer({
+        path, 
+        content: '',
+        isFile: true,
+        create: true
       }, (resp) => {
         const { update, updatedSize } = resp
 
