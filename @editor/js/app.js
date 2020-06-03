@@ -251,17 +251,26 @@ Object.assign(lolitor.prototype, {
   },
 
   setTabData({value, editor, template = -1, tabRef}){
-    if(template === -1) (editor || tabRef.editor).setValue(value, -1)
+    if(template === -1){
+      (editor || tabRef.editor).setValue(value, -1)
+      
+      /**
+       * if tab has no template then save value in tab reference
+       * to preserve old value if user want to reject new changes.
+       */
+      tabRef.value = value
+
+      /**
+       * Reset undo state to prevent file from getting 
+       * empty on initial undo
+       */
+      tabRef.editor.session.setUndoManager(new ace.UndoManager())
+      // session.getUndoManager().reset();
+    } 
     else this.setTemplate(value, template)
 
     // setting up template type
     tabRef.template = template;
-
-    /**
-     * if tab has no template then save value in tab reference
-     * to preserve old value if user want to reject changes.
-     */
-    template === -1 && (tabRef.value = value)
   },
   initEditor(selector, tabReference) {
     const editor = ace.edit(selector);
@@ -274,7 +283,7 @@ Object.assign(lolitor.prototype, {
     // set editor session
     session.setUseWorker(false) // to disable error info
     session.setTabSize(2)
-    session.setUndoManager(new ace.UndoManager()) // Fix: file emptying issue on redo 
+   
 
     tabReference.editor = editor;
     this.setTheme();
@@ -885,11 +894,15 @@ Object.assign(lolitor.prototype, {
           const listItemDOM = this.createListItemDOM(listItemConfig)
           listItem.parentNode.insertBefore(listItemDOM, listItem)
           
-          // to remove listItem
+          // to remove listItem placeholder
           input.blur()
           
           this.dataSet[path] = listItemConfig
           this.addListItemEvents(listItemDOM)
+
+          // open tab
+          this.makeActiveTreeItem(null, listItemDOM)
+          this.openFile(path, listItemDOM)
         }else{
           this.throwAppError("Operation not allowed! File creation failed.")
         }
@@ -956,15 +969,20 @@ Object.assign(lolitor.prototype, {
     this.addListItemMouseEv(listItem, listNameItem)
 
     listNameItem.addEventListener('click', function(){
-      const focusedItem = _this._lastFocusedItem
-      if(focusedItem){
-        const focusedItemChild = focusedItem.querySelector('.app-list-name')
-        focusedItemChild && focusedItemChild.classList.remove('--active');
-      }
-      
-      _this._lastFocusedItem = this.parentNode;
-      this.classList.add('--active');
+      _this.makeActiveTreeItem(this)
     })
+  },
+
+  makeActiveTreeItem(listNameItem, treeItem){
+    const el = listNameItem || treeItem.querySelector('.app-list-name')
+    const focusedItem = this._lastFocusedItem
+    if(focusedItem){
+      const focusedItemChild = focusedItem.querySelector('.app-list-name')
+      focusedItemChild && focusedItemChild.classList.remove('--active');
+    }
+    
+    this._lastFocusedItem = el.parentNode;
+    el.classList.add('--active');
   },
 
   addRootScrollEvent() {
