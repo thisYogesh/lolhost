@@ -150,8 +150,12 @@ Object.assign(lolitor.prototype, {
     }, function(resp){
       if(resp.update){
         const tabRef = _this.currentTab
-        tabRef._unsaved = false;
+        
+        // save for to compare new value
         tabRef.value = tabRef.editor.getValue()
+        tabRef._unsaved = false;
+
+        // update size elements in DOM
         _this.handleSaveStatus()
         
         // update file size in dataSet

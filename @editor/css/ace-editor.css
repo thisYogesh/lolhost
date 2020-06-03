@@ -1,0 +1,109 @@
+.ace-vs-code .ace_marker-layer .ace_selected-word {
+  border: 1px solid rgba(234, 92, 0, 0.33);
+  background-color: rgba(234, 92, 0, 0.33);
+  z-index: 6;
+}
+
+/* Editor search widget */
+.ace_search.right {
+  font-size: 14px;
+  background-color: #252526;
+  color: var(--color-6);
+  border-radius: unset;
+  border: none;
+  padding: 8px 8px;
+  box-shadow: -1px 1px 6px #000;
+}
+
+.ace_search_field {
+  background-color: #3c3c3c;
+  border: none;
+  border-radius: unset;
+  color: var(--color-6);
+  border: 1px solid transparent;
+}
+
+.ace_searchbtn, .ace_searchbtn:last-child {
+  line-height: normal;
+  border: none;
+  background-color: transparent;
+}
+
+.ace_searchbtn.prev, .ace_searchbtn.next {
+  padding: 4px 4px 4px 8px;
+  vertical-align: middle;
+}
+
+.ace_searchbtn.prev:after, .ace_searchbtn.next:after {
+  width: 7px;
+  height: 7px;
+  border-color: #fff;
+}
+
+.ace_searchbtn {
+  color: var(--color-6);
+}
+
+.ace_button {
+  margin: 0 0 0 4px!important;
+  color: inherit;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 17px;
+  text-align: center;
+  background-color: var(--color-5);
+  border-color: #ffffff42;
+}
+
+.ace_search_options {
+  margin: 10px 0 0;
+}
+
+.ace_search_form, .ace_replace_form {
+  margin-bottom: 6px;
+}
+
+.ace_button[action=toggleReplace] {
+  line-height: 22px;
+  margin-left: 0 !important;
+}
+
+.ace_button.checked {
+  background-color: var(--color-4);
+  color: #fff;
+}
+
+.ace_button:hover {
+  background-color: var(--color-10);
+}
+
+.ace_search_field:hover {
+  border-color: #ffffff42;
+}
+
+.ace_search_field:focus {
+  border-color: var(--color-4);
+}
+
+.ace_searchbtn:hover {
+  background-color: transparent;
+}
+
+.ace_search_form.ace_nomatch:after {
+  position: absolute;
+  right: 6px;
+  content: 'No Match!';
+  color: #b22;
+}
+
+.ace_search_form.ace_nomatch {
+    position: relative;
+    outline: none;
+}
+
+.ace_search_form.ace_nomatch .ace_searchbtn {
+    visibility: hidden;
+}
+/* Editor search widget */
