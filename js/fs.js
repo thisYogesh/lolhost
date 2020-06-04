@@ -6,6 +6,10 @@ module.exports = {
     fs.writeFile(path, data, encode, cb)
   },
 
+  mkdir(path, encode = null, cb){
+    fs.mkdir(path, encode, cb)
+  },
+
   fetch({ path, encode }, { onDir, onFile, onError }) {
     const stat = this.statSync(path);
     if (stat.$error) {

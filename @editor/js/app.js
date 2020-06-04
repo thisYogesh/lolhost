@@ -564,7 +564,7 @@ Object.assign(lolitor.prototype, {
     const createInnerListView = () => {
       let html = ''
       if(create){
-        html = `<input type="text" class="app-create-input">`
+        html = `<input type="text" spellcheck="false" class="app-create-input">`
       }else{
         html = `${title} <i class="app-list-item-size ${!size && '--hide' || ''}">&#8212; ${size}</i>`
       }
@@ -838,9 +838,18 @@ Object.assign(lolitor.prototype, {
     return activeListEl
   },
 
+  getPlaceholderPos(listEl, isDirectory){
+    let firstItem = listEl.querySelector(`:scope > [data-isdirectory=${isDirectory}]`)
+    if(!firstItem && isDirectory){
+      firstItem = listEl.querySelector(`:scope > [data-isdirectory=false]`)
+    }
+
+    return firstItem
+  },
+
   createNewItemPlaceholder(isDirectory){
     const listEl = this.getActiveFocusedList()
-    const firstItem = listEl.querySelector(`:scope > [data-isdirectory=${isDirectory}]`)
+    const firstItem = this.getPlaceholderPos(listEl, isDirectory)
     const itemConfig = {
       href: listEl.parentNode.dataset.href || '/',
       isDirectory,
@@ -853,7 +862,7 @@ Object.assign(lolitor.prototype, {
     listEl.insertBefore(listItemDom, firstItem)
 
     // open tree if closed
-    this.openPathFolders(firstItem)
+    firstItem && this.openPathFolders(firstItem)
 
     // add DOM events to new treeItem
     this.CNItemEvents(listItemDom, itemConfig, isDirectory)
@@ -877,47 +886,48 @@ Object.assign(lolitor.prototype, {
   },
 
   createNewItem(listItem, itemConfig, isDirectory){
-    if(!isDirectory){
-      const input = listItem.querySelector('input')
-      const value = input.value
-      const _path = itemConfig.href
-      const prePath = _path === rootPath ? _path : _path.concat('/')
-      const path = `${prePath}${value}`
+    const input = listItem.querySelector('input')
+    const value = input.value
+    const _path = itemConfig.href
+    const prePath = _path === rootPath ? _path : _path.concat('/')
+    const path = `${prePath}${value}`
 
-      // create file on server
-      this.sendToServer({
-        path, 
-        content: '',
-        isFile: true,
-        create: true
-      }, (resp) => {
-        const { update, updatedSize } = resp
+    // create file on server
+    this.sendToServer({
+      path, 
+      content: '',
+      isFile: !isDirectory,
+      create: true
+    }, (resp) => {
+      const { create, isFile, updatedSize } = resp
 
-        if(update){
-          const listItemConfig = {
-            href: path,
-            isDirectory,
-            isHidden: false,
-            size: updatedSize,
-            title: value
-          }
-          const listItemDOM = this.createListItemDOM(listItemConfig)
-          listItem.parentNode.insertBefore(listItemDOM, listItem)
-          
-          // to remove listItem placeholder
-          input.blur()
-          
-          this.dataSet[path] = listItemConfig
-          this.addListItemEvents(listItemDOM)
-
-          // open tab
-          this.makeActiveTreeItem(null, listItemDOM)
-          this.openFile(path, listItemDOM)
-        }else{
-          this.throwAppError("Operation not allowed! File creation failed.")
+      if(create){
+        const listItemConfig = {
+          href: path,
+          isDirectory: !isFile,
+          isHidden: false,
+          size: updatedSize,
+          title: value
         }
-      })
-    }
+        const listItemDOM = this.createListItemDOM(listItemConfig)
+        listItem.parentNode.insertBefore(listItemDOM, listItem)
+        
+        // to remove listItem placeholder
+        input.blur()
+        
+        if(isFile) this.dataSet[path] = listItemConfig
+
+        // attach all essential events of tree item
+        this.addListItemEvents(listItemDOM)
+
+        // open tab
+        if(isFile) this.openFile(path, listItemDOM)
+
+        this.makeActiveTreeItem(null, listItemDOM)
+      }else{
+        this.throwAppError("Operation not allowed! File creation failed.")
+      }
+    })
   },
 
   createFile(){

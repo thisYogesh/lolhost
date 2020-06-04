@@ -1,4 +1,8 @@
 const { logger, printBox, color, colorType, effect } = require('./print')
+const icon = {
+  success: '\u2714',
+  fail: '\u2718'
+}
 
 function logInfo({ port1, port2, name, version }){
   return ['',{
@@ -89,29 +93,37 @@ module.exports = {
     console.log(info)
   },
 
-  logFileUpdate({name, path = '', isFile = false, isUpdated = false, isCreated = false}){
-    let icon, message, colorCode;
+  logFileUpdate({name, path = '', isFile = false, isUpdated = false, isCreated = false, isRenamed = false}){
+    let statusIcon, message, colorCode;
 
     if(isFile && isUpdated){
-      icon = '\u2714'
+      statusIcon = icon.success
       message = 'File updated successfully!'
       colorCode = color.green
     }else if(isFile && isCreated){
-      icon = '\u2714'
+      statusIcon = icon.success
       message = 'File created successfully!'
       colorCode = color.green
+    }else if(isFile && isRenamed){
+      statusIcon = icon.success
+      message = 'File renamed successfully!'
+      colorCode = color.green
     }else if(!isFile && isCreated){
-      icon = '\u2714'
+      statusIcon = icon.success
       message = 'Folder created successfully!'
       colorCode = color.green
+    }else if(!isFile && !isCreated){
+      statusIcon = icon.fail
+      message = 'Unable to create folder!'
+      colorCode = color.red
     }else{
-      icon = '\u2718'
+      statusIcon = icon.fail
       message = 'Unable to update file!'
       colorCode = color.red
     }
 
     const info = logger
-      .value(`${icon} `)
+      .value(`${statusIcon} `)
       .color(colorType.fg, colorCode)
       .value(`(${name}) `)
       .color(colorType.fg, color.yellow)

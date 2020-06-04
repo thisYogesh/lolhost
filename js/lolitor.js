@@ -44,16 +44,60 @@ function lolitor(port) {
 
           onPut(data, { pathWithDir }){
             const { content, isFile, update, create } = JSON.parse(data)
-            fs.writeFile({
-              path: pathWithDir
-            }, content, function(err){
-              const name = util.lastArrayItem(pathWithDir.split('/'))
-              if(!err){
-                let respData = {}
-                if(isFile){
-                  const stat = fs.statSync(pathWithDir)
-                  const size = util.getSize(stat.size)
-                  
+            const name = util.lastArrayItem(pathWithDir.split('/'))
+            
+            if(isFile){
+              fs.writeFile({
+                path: pathWithDir
+              }, content, (err) => {
+                
+                if(!err){
+                  let respData = {}
+                  if(isFile){
+                    const stat = fs.statSync(pathWithDir)
+                    const size = util.getSize(stat.size)
+                    
+                    // log operation status
+                    logFileUpdate({
+                      name,
+                      isFile,
+                      path: pathWithDir, 
+                      isUpdated: update,
+                      isCreated: create
+                    })
+
+                    respData = { 
+                      updatedSize: size,
+                      isFile: true 
+                    }
+
+                    if(create) respData.create = true
+                    if(update) respData.update = true
+                  }
+                  // else if(!isFile && create){
+                  // }
+
+                  res.end(JSON.stringify(respData))
+                  return;
+                }
+
+                // log operation status
+                logFileUpdate({
+                  name, 
+                  isFile,
+                  path: pathWithDir, 
+                  isUpdated: false
+                })
+
+                // coule be "permission access" issue
+                res.end(JSON.stringify({ 
+                  create: false,
+                  isFile: true
+                }))
+              })
+            }else{
+              fs.mkdir(pathWithDir, null, (err) => {
+                if(!err){
                   // log operation status
                   logFileUpdate({
                     name,
@@ -63,26 +107,30 @@ function lolitor(port) {
                     isCreated: create
                   })
 
-                  respData = { update: true, updatedSize: size }
+                  create && res.end(JSON.stringify({
+                    isFile: false,
+                    create: true
+                  }))
+
+                  return;
                 }
-                // else if(!isFile && create){
-                // }
 
-                res.end(JSON.stringify(respData))
-                return;
-              }
+                // log operation status
+                logFileUpdate({
+                  name,
+                  isFile,
+                  path: pathWithDir, 
+                  isCreated: false
+                })
 
-              // log operation status
-              logFileUpdate({
-                name, 
-                isFile,
-                path: pathWithDir, 
-                isUpdated: false
+                // coule be "permission access" issue
+                create && res.end(JSON.stringify({ 
+                  create: false,
+                  isFile: false
+                }))
               })
-
-              // coule be "permission access" issue
-              res.end(JSON.stringify({ update: false }))
-            })
+            }
+            
           },
 
           onFile(err, content, { encoding, currentPath }) {

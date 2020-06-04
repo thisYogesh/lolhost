@@ -11,7 +11,6 @@ body {
   font-size: 17px;
   color: var(--color-6);
   cursor: default;
-  /* zoom: 1.05; */
 }
 
 #lolitore {
@@ -476,7 +475,7 @@ body {
   float: left;
   border: 0;
   background-color: transparent;
-  color: inherit;
+  color: var(--color-11);
   height: var(--list-item-height);
   line-height: calc(var(--list-item-height));
   cursor: pointer;
@@ -485,4 +484,8 @@ body {
 
 .app-item-create:hover {
   background-color: #ffffff26;
+}
+
+.app-item-create:hover svg {
+  color: var(--color-12);
 }
