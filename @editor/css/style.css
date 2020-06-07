@@ -4,6 +4,7 @@
 @import "./popup.css";
 @import "./scrolbar.css";
 @import "./ace-editor.css";
+@import "./context-menu.css";
 
 body {
   font-family: Inconsolata;
@@ -19,7 +20,7 @@ body {
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .app-header {
@@ -139,7 +140,7 @@ body {
 }
 
 .app-list-name.--active:focus > .app-list-highlight {
-  background-color: var(--color-4);
+  background-color: var(--color-13);
   opacity: 1;
 }
 

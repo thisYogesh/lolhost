@@ -1,0 +1,37 @@
+.app-context-menu {
+  position: fixed;
+  background-color: var(--color-2);
+  font-size: 16px;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid #131212;
+  box-shadow: 0 0 2px #fff;
+}
+
+.context-menu-item {
+  position: relative;
+  padding: 6px 15px 6px 30px;
+  min-width: 140px;
+  border-top: 1px solid #333333;
+  border-bottom: 1px solid #131212;
+}
+
+.context-menu-item:hover {
+  background-color: var(--color-5);
+}
+
+.context-menu-item:first-child {
+  border-top: 0;
+}
+
+.context-menu-item:last-child {
+  border-bottom: 0;
+}
+
+.context-menu-item > svg {
+  width: 16px;
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+}

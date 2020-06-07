@@ -16,5 +16,7 @@
     "node",
     "static server",
     "lolhost"
-  ]
+  ],
+  "author": "Yogesh Jagdale <yog99mail@gmail.com>",
+  "repository": "https://github.com/thisYogesh/lolhost.git"
 }

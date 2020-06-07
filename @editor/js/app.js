@@ -1,3 +1,6 @@
+/**
+ * @author Yogesh Jagdale <yog99mail@gmail.com>
+ */
 const { Method } = require('../../js/enums')
 const svgExt = require('./extIcons')
 const syntax = require('./syntaxMode')
@@ -350,12 +353,7 @@ Object.assign(lolitor.prototype, {
     this._highlighting = true
     const treeItemName = treeItem.querySelector('.app-list-name')
 
-    const focusedItem = this._lastFocusedItem
-    if(focusedItem){
-      const focusedItemChild = focusedItem.querySelector('.app-list-name')
-      focusedItemChild.classList.remove('--active');
-      this._lastFocusedItem = treeItemName.parentNode
-    }
+    this.setLastFocusedItem(treeItemName.parentNode)
 
     treeItemName.focus()
     treeItemName.classList.add('--active')
@@ -523,6 +521,17 @@ Object.assign(lolitor.prototype, {
  * DOM Manipulation
  */
 Object.assign(lolitor.prototype, {
+  setLastFocusedItem(el){
+    const focusedItem = this._lastFocusedItem
+
+    // if found last focused item then remove --active from it.
+    if(focusedItem){
+      const focusedItemChild = focusedItem.querySelector('.app-list-name')
+      focusedItemChild && focusedItemChild.classList.remove('--active');
+    }
+    
+    this._lastFocusedItem = el;
+  },
   getTabElems(){
     this.editorParent = this.editorParent || document.querySelector('#lol-editor')
     this.tabParent = this.tabParent || document.querySelector('.app-tab-wrapper')
@@ -539,6 +548,7 @@ Object.assign(lolitor.prototype, {
     this._appFilename = document.querySelector('.app-header-filename')
     this._appFooterStatus = document.querySelector('.app-status')
     this._confirmationBox = document.querySelector('.app-popup')
+    this._contextMenu = document.querySelector('.app-context-menu')
   },
 
   createList(items) {
@@ -709,28 +719,32 @@ Object.assign(lolitor.prototype, {
     const tab = wrapper.querySelector('.app-tab-item')
     const closeTab = wrapper.querySelector('.app-file-close')
 
-    tab.addEventListener('click', function(){
-      _this.showTab(tabReference)
+    this.setEvents(tab, {
+      click(){
+        _this.showTab(tabReference)
+      }
     })
 
-    closeTab.addEventListener('click', function(e){
-      e.stopPropagation();
+    (closeTab, {
+      click(e){
+        e.stopPropagation();
 
-      if(!tabReference._unsaved){
-        _this.closeTab(tabReference, true)
-      }else{
-        _this.confirm({
-          message: 'Do you want to save the changes?',
-          onConfirm(){
-            _this.saveFile(function(){
+        if(!tabReference._unsaved){
+          _this.closeTab(tabReference, true)
+        }else{
+          _this.confirm({
+            message: 'Do you want to save the changes?',
+            onConfirm(){
+              _this.saveFile(function(){
+                _this.closeTab(tabReference, true)
+              })
+            },
+            onDiscard(){
               _this.closeTab(tabReference, true)
-            })
-          },
-          onDiscard(){
-            _this.closeTab(tabReference, true)
-          },
-          // onAbort(){ }
-        })
+            },
+            // onAbort(){ }
+          })
+        }
       }
     })
 
@@ -815,11 +829,16 @@ Object.assign(lolitor.prototype, {
     const createButtons = document.querySelectorAll('.app-item-create')
     createButtons.forEach(button => {
       const isCreateFile = button.classList.contains('--create-file')
-      if(isCreateFile) button.addEventListener('click', function(){
-        _this.createFile()
+      if(isCreateFile) this.setEvents(button, {
+        click(){
+          _this.createFile()
+        }
       })
-      else button.addEventListener('click', function(){
-        _this.createFolder()
+      
+      else this.setEvents(button, {
+        click(){
+          _this.createFolder()
+        }
       })
     })
   },
@@ -873,12 +892,14 @@ Object.assign(lolitor.prototype, {
     const input = listItem.querySelector('input')
     const createFn = this.createNewItem.bind(_this, listItem, itemConfig, isDirectory)
 
-    input.addEventListener('blur', function(){
-      listItem.remove()
-    })
-
-    input.addEventListener('keyup', function(e){
-      _this.onEnterKeyUp(e, createFn)
+    this.setEvents(input, {
+      blur(){
+        listItem.remove()
+      },
+      
+      keyup(e){
+        _this.onEnterKeyUp(e, createFn)
+      }
     })
     
     this.addListItemMouseEv(listItem)
@@ -941,10 +962,13 @@ Object.assign(lolitor.prototype, {
   addListItemMouseEv(listItem, listNameItemEl){
     const _this = this
     const listNameItem = listNameItemEl || listItem.querySelector(".app-list-name")
-    listNameItem.addEventListener("mouseenter", function() {
-      _this.setHighlightMargin(this)
-      _this._lastHoveredItem = this
-    });
+
+    this.setEvents(listNameItem, {
+      mouseenter() {
+        _this.setHighlightMargin(this)
+        _this._lastHoveredItem = this
+      }
+    })
   },
 
   addListEvents(list) {
@@ -963,67 +987,69 @@ Object.assign(lolitor.prototype, {
      * This event make sure to open file in readonly mode
      * if file comes under restricted folders
      */
-    listItem.addEventListener('click', function(e){
-      let isValidPath = false
+    this.setEvents(listItem, {
+      $click(e){
+        let isValidPath = false
 
-      // check if clicked on file
-      for( let el of e.path ){
-        if(el.nodeType === 1 && el.classList.contains('app-list-item') && el.dataset.isdirectory === Bool.FALSE){
-          isValidPath = true
+        // check if clicked on file
+        for( let el of e.path ){
+          if(el.nodeType === 1 && el.classList.contains('app-list-item') && el.dataset.isdirectory === Bool.FALSE){
+            isValidPath = true
+          }
         }
-      }
 
-      if(isValidPath){
-        const isReadOnly = this.classList.contains('--read-only-dir')
-        if(isReadOnly) _this._isReadOnly = isReadOnly
-      }else{
-        _this._isReadOnly = false
-      }
-    }, true)
+        if(isValidPath){
+          const isReadOnly = this.classList.contains('--read-only-dir')
+          if(isReadOnly) _this._isReadOnly = isReadOnly
+        }else{
+          _this._isReadOnly = false
+        }
+      },
 
-    listItem.addEventListener("click", function(e){
-      _this.fetchItem(this)
-      e.stopPropagation();
+      click(e){
+        _this.fetchItem(this)
+        e.stopPropagation();
+      }
+    })
+    
+    (listNameItem, {
+      click(){
+        _this.makeActiveTreeItem(this)
+      }
     })
 
     this.addListItemMouseEv(listItem, listNameItem)
-
-    listNameItem.addEventListener('click', function(){
-      _this.makeActiveTreeItem(this)
-    })
   },
 
   makeActiveTreeItem(listNameItem, treeItem){
     const el = listNameItem || treeItem.querySelector('.app-list-name')
-    const focusedItem = this._lastFocusedItem
-    if(focusedItem){
-      const focusedItemChild = focusedItem.querySelector('.app-list-name')
-      focusedItemChild && focusedItemChild.classList.remove('--active');
-    }
-    
-    this._lastFocusedItem = el.parentNode;
+
+    this.setLastFocusedItem(el.parentNode)
     el.classList.add('--active');
   },
 
   addRootScrollEvent() {
     const _this = this;
     const rootListWrapper = this.getRootListWrapper()
-    rootListWrapper.addEventListener("scroll", function() {
-      _this.frames(function(){
-        if(_this._highlighting){
-          _this._highlighting = false;
-          return;
-        }
-        if(_this._lastHoveredItem) _this.setHighlightMargin(_this._lastHoveredItem, rootListWrapper)
-        
-        const focusedItem = _this._lastFocusedItem
-        if(focusedItem){
-          const focusedItemChild = focusedItem.querySelector('.app-list-name')
-          focusedItemChild.classList.remove('--active')
-          focusedItemChild.blur()
-        }
-      })
-    });
+
+    this.setEvents(rootListWrapper, {
+      scroll() {
+        _this.frames(function(){
+          if(_this._highlighting){
+            _this._highlighting = false;
+            return;
+          }
+          if(_this._lastHoveredItem) _this.setHighlightMargin(_this._lastHoveredItem, rootListWrapper)
+          
+          const focusedItem = _this._lastFocusedItem
+          if(focusedItem){
+            const focusedItemChild = focusedItem.querySelector('.app-list-name')
+            focusedItemChild.classList.remove('--active')
+            focusedItemChild.blur()
+          }
+        })
+      }
+    })
   },
 
   showTab(tabRef){
@@ -1033,7 +1059,9 @@ Object.assign(lolitor.prototype, {
     this.highlightInTree(tabRef.treeItem, true);
     this.currentTab = tabRef
     this.updateBars()
-    tabRef.button.scrollIntoView() // scroll to active tab button
+
+    // scroll to active tab button
+    tabRef.button.scrollIntoView()
   },
 
   closeTab(tabReference, killTab = false){
@@ -1051,18 +1079,57 @@ Object.assign(lolitor.prototype, {
 
   setWindowEvents(){
     const _this = this
-    window.addEventListener('keydown', function(e){
-      if( (e.ctrlKey || e.metaKey) && e.keyCode === 83 ){
-        e.preventDefault()
-        _this.saveFile()
-      }
+
+    this.setEvents(window, {
+      click(){
+        _this._contextMenu.classList.add('--hide')
+      },
+
+      keydown(e){
+        if( (e.ctrlKey || e.metaKey) && e.keyCode === 83 ){
+          e.preventDefault()
+          _this.saveFile()
+        }
+      },
+      
+      contextmenu(e){
+        const rootTreeWrapper = _this._listRoot.querySelector('.app-list-wrapper')
+        if(e.path.includes(rootTreeWrapper)){
+          e.preventDefault()
+          _this.onContextMenu(e)
+        }
+      },
+
+      beforeunload(e){
+        e.returnValue = 'Are you want to close editor?';
+      },
     })
 
-    window.addEventListener('beforeunload', function(e){
-      e.returnValue = 'Are you want to close editor?';
+    (this._contextMenu, {
+      contextmenu(e){
+        e.preventDefault()
+        e.stopPropagation()
+      }
     })
   }
 });
+
+/**
+ * Context menu
+ */
+
+Object.assign(lolitor.prototype, {
+  onContextMenu(e){
+    const {x, y} = e
+    const menu = this._contextMenu
+
+    menu.classList.remove('--hide')
+    this.setStyle(menu, {
+      top: `${y - 10}px`,
+      left: `${x + 10}px`
+    })
+  }
+})
 
 /**
  * Util
@@ -1090,6 +1157,21 @@ Object.assign(lolitor.prototype, {
 
   onEnterKeyUp(e, cb){
     if(e.keyCode === 13) cb && cb()
+  },
+
+  setStyle(el, styles){
+    for(let style in styles){
+      el.style[style] = styles[style]
+    }
+  },
+
+  setEvents(el, events){
+    for(let event in events){
+      const capture = /^\$/.test(event)
+      el.addEventListener(event.replace('$', ''), events[event], capture)
+    }
+
+    return this.setEvents
   }
 });
 
@@ -1126,19 +1208,25 @@ Object.assign(lolitor.prototype, {
     const abortBtn = cbox.querySelector('.app-popup-box-close')
     const _this = this
     
-    confirmBtn.addEventListener('click', function(){
-      const { onConfirm } = _this.$cbConfig
-      cboxEvents(onConfirm)
+    this.setEvents(confirmBtn, {
+      click(){
+        const { onConfirm } = _this.$cbConfig
+        cboxEvents(onConfirm)
+      }
     })
 
-    discardBtn.addEventListener('click', function(){
-      const { onDiscard } = _this.$cbConfig
-      cboxEvents(onDiscard)
+    (discardBtn, {
+      click(){
+        const { onDiscard } = _this.$cbConfig
+        cboxEvents(onDiscard)
+      }
     })
 
-    abortBtn.addEventListener('click', function(){
-      const { onAbort } = _this.$cbConfig
-      cboxEvents(onAbort)
+    (abortBtn, {
+      click(){
+        const { onAbort } = _this.$cbConfig
+        cboxEvents(onAbort)
+      }
     })
 
     function cboxEvents(fn){

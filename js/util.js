@@ -9,7 +9,7 @@ const supportedExt = Object.keys(types)
 const supportedTypes = Object.values(types)
 const imageTypes = {}
 supportedTypes.forEach(type => {
-    type.includes('image/') && (imageTypes[type] = true)
+  type.includes('image/') && !type.includes('svg') && (imageTypes[type] = true)
 })
 
 const errorPage = (code)=> {
@@ -128,7 +128,7 @@ module.exports = {
     },
 
     isImageType(type){
-        return !!imageTypes[type]
+      return !!imageTypes[type]
     },
 
     isSupportedType(type){
